@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String?
+  email               String    @unique
+  password            String?
+  image               String?
+  coverImage          String?
+  bio                 String?
+  location            String?
+  phone               String?
+  website             String?
+  occupation          String?
+  dob                 String?
+  username            String?   @unique
+  instagram           String?
+  tiktok              String?
+  twitter             String?
+  profileViews        Int       @default(0)
+  openToContact       Boolean   @default(true)
+  onboardingComplete  Boolean   @default(false)
+  emailMessages       Boolean   @default(true)
+  emailTagFollows     Boolean   @default(true)
+  emailDigest         Boolean   @default(true)
+  emailFollowers      Boolean   @default(true)
+  emailVerified       Boolean   @default(false)
+  banned              Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  profilePhotos  ProfilePhoto[]
+  dailyProfiles  DailyProfile[]
+  closetItems    ClosetItem[]
+  workItems      WorkItem[]
+  interestTags   InterestTag[]
+  accounts       Account[]
+  sessions       Session[]
+  followers              Follow[]               @relation("UserFollowed")
+  following              Follow[]               @relation("UserFollower")
+  dailyProfileReactions  DailyProfileReaction[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model ProfilePhoto {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model DailyProfile {
+  id        String               @id @default(cuid())
+  date      String
+  note      String?
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtags  DailyProfileHashtag[]
+  reactions DailyProfileReaction[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@unique([userId, date])
+}
+
+model Hashtag {
+  id              String                @id @default(cuid())
+  name            String                @unique
+  dailyProfiles   DailyProfileHashtag[]
+  closetItems     ClosetItemHashtag[]
+  workItems       WorkItemHashtag[]
+  followedBy      FollowedHashtag[]
+  interestTags    InterestTag[]
+  createdAt       DateTime              @default(now())
+}
+
+model DailyProfileHashtag {
+  dailyProfileId String
+  hashtagId      String
+  dailyProfile   DailyProfile @relation(fields: [dailyProfileId], references: [id], onDelete: Cascade)
+  hashtag        Hashtag      @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@id([dailyProfileId, hashtagId])
+}
+
+model ClosetItem {
+  id          String             @id @default(cuid())
+  title       String
+  description String?
+  price       Float?
+  image       String?
+  sold        Boolean            @default(false)
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtags    ClosetItemHashtag[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model ClosetItemHashtag {
+  closetItemId String
+  hashtagId    String
+  closetItem   ClosetItem @relation(fields: [closetItemId], references: [id], onDelete: Cascade)
+  hashtag      Hashtag    @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@id([closetItemId, hashtagId])
+}
+
+model WorkItem {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  category    String?
+  contactInfo String?
+  image       String?
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtags    WorkItemHashtag[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model WorkItemHashtag {
+  workItemId String
+  hashtagId  String
+  workItem   WorkItem @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+  hashtag    Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@id([workItemId, hashtagId])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String
+  reportedId  String
+  reason      String
+  details     String?
+  createdAt   DateTime @default(now())
+}
+
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
+model TosAcceptance {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  version   String
+  acceptedAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "message" | "system" | "report_filed"
+  title     String
+  body      String
+  linkUrl   String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id           String   @id @default(cuid())
+  senderId     String
+  recipientId  String
+  subject      String?
+  body         String
+  read         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model SavedProfile {
+  id          String   @id @default(cuid())
+  saverId     String
+  savedUserId String
+  note        String?
+  createdAt   DateTime @default(now())
+
+  @@unique([saverId, savedUserId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followedId  String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("UserFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed    User     @relation("UserFollowed", fields: [followedId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followedId])
+}
+
+model InterestTag {
+  id        String   @id @default(cuid())
+  userId    String
+  hashtagId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtag   Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hashtagId])
+}
+
+model ProfileViewStat {
+  id      String @id @default(cuid())
+  userId  String
+  date    String
+  count   Int    @default(0)
+
+  @@unique([userId, date])
+}
+
+model FollowedHashtag {
+  id        String   @id @default(cuid())
+  userId    String
+  hashtagId String
+  createdAt DateTime @default(now())
+  hashtag   Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hashtagId])
+}
+
+model DailyProfileReaction {
+  id             String       @id @default(cuid())
+  userId         String
+  dailyProfileId String
+  createdAt      DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyProfile   DailyProfile @relation(fields: [dailyProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dailyProfileId])
+}

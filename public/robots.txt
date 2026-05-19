@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /onboarding/
+Disallow: /messages/
+Disallow: /notifications/
+Disallow: /saved/
+Disallow: /feed/
+Disallow: /followers/
+Disallow: /following-tags/
+Disallow: /invite/
+
+Sitemap: https://spotid.app/sitemap.xml
