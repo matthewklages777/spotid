@@ -114,6 +114,23 @@ export default function AboutPage() {
         </div>
       </div>
 
+      {/* Premium */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-8 text-white text-center space-y-4">
+        <p className="text-4xl">✨</p>
+        <h2 className="text-2xl font-bold">Go Further with SpotId Premium</h2>
+        <p className="text-indigo-200 max-w-lg mx-auto text-sm leading-relaxed">
+          For $4.99/month, unlock viewer identity (see exactly who visited your profile),
+          90-day analytics, priority placement in search and discover, a verified ✅ badge,
+          anonymous browsing, and unlimited photo uploads.
+        </p>
+        <Link
+          href="/upgrade"
+          className="inline-block bg-white text-indigo-700 font-bold px-8 py-3 rounded-full hover:bg-indigo-50 transition text-sm"
+        >
+          See Premium Features →
+        </Link>
+      </div>
+
       {/* CTA */}
       <div className="text-center space-y-4 py-4">
         <h2 className="text-2xl font-bold text-gray-900">Ready to be found?</h2>

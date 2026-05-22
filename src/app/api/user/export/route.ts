@@ -42,6 +42,7 @@ export async function GET() {
         createdAt: true, onboardingComplete: true,
         emailMessages: true, emailTagFollows: true, emailDigest: true,
         emailFollowers: true,
+        isPremium: true, premiumSince: true, browseAnonymously: true,
       },
     }),
     prisma.dailyProfile.findMany({
