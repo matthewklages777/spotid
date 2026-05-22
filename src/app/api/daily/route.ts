@@ -201,5 +201,50 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Streak milestone notifications — only fire on a new post (not edits)
+  if (!existing) {
+    const STREAK_MILESTONES = [7, 14, 30, 60, 100, 365];
+    const dayMs = 86_400_000;
+
+    // Compute current streak from all daily profiles (lightweight — just dates)
+    const allDates = await prisma.dailyProfile.findMany({
+      where: { userId },
+      select: { date: true },
+      orderBy: { date: "desc" },
+    });
+
+    let streak = 0;
+    for (let i = 0; i < allDates.length; i++) {
+      const expected = new Date(Date.now() - i * dayMs).toISOString().slice(0, 10);
+      if (allDates[i].date === expected) streak++;
+      else break;
+    }
+
+    if (STREAK_MILESTONES.includes(streak)) {
+      const alreadyStreakNotif = await prisma.notification.findFirst({
+        where: { userId, type: "streak_milestone", title: { contains: String(streak) } },
+      });
+      if (!alreadyStreakNotif) {
+        const labels: Record<number, string> = {
+          7: "One week",
+          14: "Two weeks",
+          30: "One month",
+          60: "Two months",
+          100: "100 days",
+          365: "One full year",
+        };
+        await prisma.notification.create({
+          data: {
+            userId,
+            type: "streak_milestone",
+            title: `🔥 ${labels[streak] ?? streak + " day"} streak!`,
+            body: `You've tagged ${streak} days in a row. Keep it up — consistency is how you get found.`,
+            linkUrl: `/profile/${userId}`,
+          },
+        });
+      }
+    }
+  }
+
   return Response.json(profile);
 }

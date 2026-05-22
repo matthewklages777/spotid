@@ -20,7 +20,7 @@ const faqs = [
       },
       {
         q: "Is SpotId free?",
-        a: "Yes. SpotId is free to join, post, and search.",
+        a: "Yes. SpotId is free to join, post, and search. We also offer SpotId Premium ($4.99/month) which unlocks extra features like seeing who viewed your profile, 90-day analytics, priority search placement, a verified ✅ badge, anonymous browsing, and unlimited photos.",
       },
       {
         q: "How do I set my Daily Profile?",
@@ -138,6 +138,35 @@ const faqs = [
       {
         q: "Something isn't working. Who do I contact?",
         a: "Use the Report button on any profile or post to flag content issues. For account or technical problems, email us through the contact information in the footer of your account page.",
+      },
+    ],
+  },
+  {
+    section: "Premium",
+    items: [
+      {
+        q: "What is SpotId Premium?",
+        a: "SpotId Premium is a $4.99/month subscription that unlocks extra features: see who viewed your profile (full list, last 30 days), 90-day analytics, priority search and discover placement, a verified ✅ badge, anonymous browsing mode, and unlimited photo uploads.",
+      },
+      {
+        q: "How do I upgrade to Premium?",
+        a: "Go to the Upgrade page from your profile menu or visit /upgrade. Checkout is handled securely by Stripe — SpotId never sees or stores your card details.",
+      },
+      {
+        q: "Can I cancel Premium any time?",
+        a: "Yes. Go to Settings → Subscription and click Cancel. You keep all premium features until the end of your current billing period. No fees, no penalties.",
+      },
+      {
+        q: "What happens to my viewer data if I cancel?",
+        a: "Your viewer history is retained for 30 days after your premium period ends. If you re-subscribe, your history comes back.",
+      },
+      {
+        q: "What is the verified badge?",
+        a: "The ✅ badge appears on your name in search results, discover, tag pages, and the leaderboard. It signals to other users that you're a committed, verified SpotId member.",
+      },
+      {
+        q: "What does anonymous browsing mean?",
+        a: "When anonymous browsing is on, you can view other profiles without appearing in their 'Who Viewed Me' list. Toggle it on or off any time from Settings.",
       },
     ],
   },
