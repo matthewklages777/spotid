@@ -11,6 +11,7 @@ interface DailyEntry {
   id: string;
   date: string;
   note?: string;
+  image?: string;
   updatedAt: string;
   user: UserSnippet;
   hashtags: { hashtag: Hashtag }[];
@@ -124,6 +125,11 @@ function DailyCard({ entry, isTagFeed, myId }: { entry: DailyEntry; isTagFeed?: 
       </div>
       {entry.note && (
         <p className="px-4 pb-2 text-sm text-gray-600 leading-relaxed">{entry.note}</p>
+      )}
+      {entry.image && (
+        <div className="px-4 pb-3">
+          <img src={entry.image} alt="Today's photo" className="w-full rounded-xl object-cover max-h-72" />
+        </div>
       )}
       {entry.hashtags.length > 0 && (
         <div className="px-4 pb-3 flex flex-wrap gap-1.5">

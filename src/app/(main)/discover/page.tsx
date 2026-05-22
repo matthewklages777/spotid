@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface Hashtag { id: string; name: string }
-interface DailyProfile { hashtags: { hashtag: Hashtag }[] }
+interface DailyProfile { image?: string; hashtags: { hashtag: Hashtag }[] }
 interface ActiveUser {
   id: string; name?: string; image?: string;
   location?: string; occupation?: string; username?: string;
@@ -47,41 +47,49 @@ function Avatar({ image, name, size = "md" }: { image?: string; name?: string; s
 
 function UserRow({ u, myId }: { u: ActiveUser; myId?: string }) {
   const router = useRouter();
+  const todayDaily = u.dailyProfiles[0];
   return (
     <div
-      className="flex items-start gap-4 px-5 py-3.5 hover:bg-gray-50 transition cursor-pointer"
+      className="hover:bg-gray-50 transition cursor-pointer overflow-hidden"
       onClick={() => router.push(`/profile/${u.id}`)}
     >
-      <Avatar image={u.image} name={u.name} />
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-gray-900 text-sm">{u.name || "Anonymous"}</p>
-        {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
-        {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}
-        {u.location && <p className="text-xs text-gray-400">📍 {u.location}</p>}
-        <div className="flex flex-wrap gap-1 mt-1.5">
-          {u.dailyProfiles[0]?.hashtags.slice(0, 6).map(({ hashtag }) => (
-            <Link
-              key={hashtag.id}
-              href={`/tag/${hashtag.name}`}
-              onClick={(e) => e.stopPropagation()}
-              className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full hover:bg-indigo-100 transition"
-            >
-              #{hashtag.name}
-            </Link>
-          ))}
+      {todayDaily?.image && (
+        <div className="w-full h-32 overflow-hidden">
+          <img src={todayDaily.image} alt="Today's photo" className="w-full h-full object-cover" />
         </div>
-      </div>
-      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Active</span>
-        {myId && myId !== u.id && (
-          <Link
-            href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
-            onClick={(e) => e.stopPropagation()}
-            className="text-xs text-indigo-600 hover:underline font-medium"
-          >
-            Message →
-          </Link>
-        )}
+      )}
+      <div className="flex items-start gap-4 px-5 py-3.5">
+        <Avatar image={u.image} name={u.name} />
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-900 text-sm">{u.name || "Anonymous"}</p>
+          {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
+          {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}
+          {u.location && <p className="text-xs text-gray-400">📍 {u.location}</p>}
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {todayDaily?.hashtags.slice(0, 6).map(({ hashtag }) => (
+              <Link
+                key={hashtag.id}
+                href={`/tag/${hashtag.name}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full hover:bg-indigo-100 transition"
+              >
+                #{hashtag.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Active</span>
+          {myId && myId !== u.id && (
+            <Link
+              href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs text-indigo-600 hover:underline font-medium"
+            >
+              Message →
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

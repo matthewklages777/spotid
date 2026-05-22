@@ -4,12 +4,16 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
+interface DailyProfileResult {
+  image?: string;
+  hashtags: { hashtag: { id: string; name: string } }[];
+}
 interface User {
   id: string; name?: string; image?: string; bio?: string; location?: string; occupation?: string; username?: string;
-  dailyProfiles: { hashtags: { hashtag: { id: string; name: string } }[] }[];
+  dailyProfiles: DailyProfileResult[];
 }
 type Profile = Omit<User, "dailyProfiles"> & {
-  dailyProfiles: { hashtags: { hashtag: { id: string; name: string } }[] }[];
+  dailyProfiles: DailyProfileResult[];
 };
 interface ClosetItem {
   id: string; title: string; description?: string; price?: number; image?: string;
@@ -297,53 +301,64 @@ function SearchContent() {
             <span>👤</span> People Active Today
             <span className="text-sm font-normal text-gray-400">({users.length})</span>
           </h2>
-          {users.map((u) => (
-            <div key={u.id} onClick={() => router.push(`/profile/${u.id}`)}
-              className="bg-white rounded-xl border border-gray-100 p-4 hover:border-indigo-300 hover:shadow-sm transition flex items-start gap-4 cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-lg font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
-                {u.image
-                  ? <img src={u.image} alt={u.name} className="w-full h-full object-cover" />
-                  : (u.name?.[0] ?? "?").toUpperCase()
-                }
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-gray-900">{u.name || "Anonymous"}</p>
-                    {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
-                    {u.occupation && <p className="text-sm text-indigo-600">{u.occupation}</p>}
-                    {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}
+          {users.map((u) => {
+            const todayDaily = u.dailyProfiles[0];
+            return (
+              <div key={u.id} onClick={() => router.push(`/profile/${u.id}`)}
+                className="bg-white rounded-xl border border-gray-100 hover:border-indigo-300 hover:shadow-sm transition cursor-pointer overflow-hidden">
+                {/* Daily photo banner — shown if they posted one today */}
+                {todayDaily?.image && (
+                  <div className="w-full h-36 overflow-hidden">
+                    <img src={todayDaily.image} alt="Today's photo" className="w-full h-full object-cover" />
                   </div>
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
-                      Active Today
-                    </span>
-                    {myId && myId !== u.id && (
-                      <Link
-                        href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-xs text-indigo-600 hover:underline font-medium"
-                      >
-                        Message →
-                      </Link>
-                    )}
+                )}
+                <div className="p-4 flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-lg font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
+                    {u.image
+                      ? <img src={u.image} alt={u.name} className="w-full h-full object-cover" />
+                      : (u.name?.[0] ?? "?").toUpperCase()
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-gray-900">{u.name || "Anonymous"}</p>
+                        {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
+                        {u.occupation && <p className="text-sm text-indigo-600">{u.occupation}</p>}
+                        {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                          Active Today
+                        </span>
+                        {myId && myId !== u.id && (
+                          <Link
+                            href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-xs text-indigo-600 hover:underline font-medium"
+                          >
+                            Message →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {todayDaily?.hashtags.map(({ hashtag }) => (
+                        <span key={hashtag.id}
+                          className={`text-xs px-2 py-0.5 rounded-full ${
+                            parsedTags.includes(hashtag.name)
+                              ? "bg-indigo-600 text-white"
+                              : "bg-gray-100 text-gray-500"
+                          }`}>
+                          #{hashtag.name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {u.dailyProfiles[0]?.hashtags.map(({ hashtag }) => (
-                    <span key={hashtag.id}
-                      className={`text-xs px-2 py-0.5 rounded-full ${
-                        parsedTags.includes(hashtag.name)
-                          ? "bg-indigo-600 text-white"
-                          : "bg-gray-100 text-gray-500"
-                      }`}>
-                      #{hashtag.name}
-                    </span>
-                  ))}
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -354,46 +369,56 @@ function SearchContent() {
             <span>🪪</span> Profiles
             <span className="text-sm font-normal text-gray-400">({profiles.length})</span>
           </h2>
-          {profiles.map((u) => (
-            <div key={u.id} onClick={() => router.push(`/profile/${u.id}`)}
-              className="bg-white rounded-xl border border-gray-100 p-4 hover:border-indigo-300 hover:shadow-sm transition flex items-start gap-4 cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-lg font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
-                {u.image
-                  ? <img src={u.image} alt={u.name} className="w-full h-full object-cover" />
-                  : (u.name?.[0] ?? "?").toUpperCase()
-                }
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{u.name || "Anonymous"}</p>
-                    {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
-                    {u.occupation && <p className="text-sm text-indigo-600">{u.occupation}</p>}
-                    {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}
-                    {u.bio && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{u.bio}</p>}
-                  </div>
-                  {myId && myId !== u.id && (
-                    <Link
-                      href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-xs text-indigo-600 hover:underline font-medium flex-shrink-0"
-                    >
-                      Message →
-                    </Link>
-                  )}
-                </div>
-                {u.dailyProfiles[0]?.hashtags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {u.dailyProfiles[0].hashtags.map(({ hashtag }) => (
-                      <span key={hashtag.id} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                        #{hashtag.name}
-                      </span>
-                    ))}
+          {profiles.map((u) => {
+            const todayDaily = u.dailyProfiles[0];
+            return (
+              <div key={u.id} onClick={() => router.push(`/profile/${u.id}`)}
+                className="bg-white rounded-xl border border-gray-100 hover:border-indigo-300 hover:shadow-sm transition cursor-pointer overflow-hidden">
+                {todayDaily?.image && (
+                  <div className="w-full h-36 overflow-hidden">
+                    <img src={todayDaily.image} alt="Today's photo" className="w-full h-full object-cover" />
                   </div>
                 )}
+                <div className="p-4 flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-lg font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
+                    {u.image
+                      ? <img src={u.image} alt={u.name} className="w-full h-full object-cover" />
+                      : (u.name?.[0] ?? "?").toUpperCase()
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900">{u.name || "Anonymous"}</p>
+                        {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
+                        {u.occupation && <p className="text-sm text-indigo-600">{u.occupation}</p>}
+                        {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}
+                        {u.bio && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{u.bio}</p>}
+                      </div>
+                      {myId && myId !== u.id && (
+                        <Link
+                          href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-indigo-600 hover:underline font-medium flex-shrink-0"
+                        >
+                          Message →
+                        </Link>
+                      )}
+                    </div>
+                    {todayDaily?.hashtags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {todayDaily.hashtags.map(({ hashtag }) => (
+                          <span key={hashtag.id} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                            #{hashtag.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
