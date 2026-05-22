@@ -49,6 +49,6 @@
 
   <!-- "SpotId" wordmark — vertically centered: pin center is y=30, text baseline ~36 -->
   <text x="76" y="38" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="32" letter-spacing="-0.4">
-    <tspan font-weight="800" fill="#4f46e5">Spot</tspan><tspan font-weight="800" font-style="italic" fill="#7c3aed">Id</tspan>
+    <tspan font-weight="800" fill="#4f46e5">Spot</tspan><tspan font-weight="800" font-style="italic" fill="#7c3aed" font-family="Georgia, 'Times New Roman', serif">I</tspan><tspan font-weight="800" font-style="italic" fill="#7c3aed">d</tspan>
   </text>
 </svg>

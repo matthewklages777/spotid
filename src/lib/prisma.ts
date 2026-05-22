@@ -1,21 +1,20 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import path from "path";
 
-function resolveDbPath(): string {
-  // In production (Railway) set DATABASE_URL to the volume-mounted db file,
-  // e.g. "file:/data/spotid.db" or just "/data/spotid.db".
-  // In dev it falls back to the local prisma/dev.db file.
+function resolveDbUrl(): string {
   const url = process.env["DATABASE_URL"];
   if (url) {
-    // Strip the "file:" prefix — better-sqlite3 wants a plain filesystem path
-    return url.startsWith("file:") ? url.slice(5) : url;
+    if (url.startsWith("file:")) return url;
+    if (url.startsWith("/")) return `file:${url}`;
+    return url;
   }
-  return path.join(process.cwd(), "prisma", "dev.db");
+  const dbPath = path.join(process.cwd(), "prisma", "dev.db");
+  return `file:${dbPath}`;
 }
 
 function createPrismaClient() {
-  const adapter = new PrismaBetterSqlite3({ url: resolveDbPath() });
+  const adapter = new PrismaLibSql({ url: resolveDbUrl() });
   return new PrismaClient({ adapter });
 }
 
