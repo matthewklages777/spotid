@@ -92,11 +92,11 @@ export async function GET() {
     take: 10,
   });
   const tagNames = await prisma.hashtag.findMany({
-    where: { id: { in: topTagRows.map((r) => r.hashtagId) } },
+    where: { id: { in: topTagRows.map((r: { hashtagId: string; _count: { hashtagId: number } }) => r.hashtagId) } },
     select: { id: true, name: true },
   });
   const tagNameMap = Object.fromEntries(tagNames.map((t) => [t.id, t.name]));
-  const topTags = topTagRows.map((r) => ({
+  const topTags = topTagRows.map((r: { hashtagId: string; _count: { hashtagId: number } }) => ({
     name: tagNameMap[r.hashtagId] ?? "?",
     count: r._count.hashtagId,
   }));
