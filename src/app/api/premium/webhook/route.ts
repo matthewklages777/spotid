@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmail, premiumWelcomeEmail } from "@/lib/email";
 import Stripe from "stripe";
 
 // POST /api/premium/webhook
@@ -38,10 +39,20 @@ export async function POST(req: NextRequest) {
       const s = event.data.object as Stripe.Checkout.Session;
       const uid = await resolveUserId(s);
       if (uid) {
-        await prisma.user.update({
+        const user = await prisma.user.update({
           where: { id: uid },
           data: { isPremium: true, premiumSince: new Date(), stripeSubId: typeof s.subscription === "string" ? s.subscription : s.subscription?.id ?? null },
+          select: { name: true, email: true, username: true },
         });
+        // Send premium welcome email
+        const base = process.env["NEXTAUTH_URL"] || "https://www.spotidapp.com";
+        if (user.email) {
+          const profileUrl = user.username ? `${base}/u/${user.username}` : `${base}/profile/${uid}`;
+          await sendEmail({
+            to: user.email,
+            ...premiumWelcomeEmail(user.name || "", profileUrl, `${base}/settings`),
+          });
+        }
       }
       break;
     }

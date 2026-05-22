@@ -31,6 +31,8 @@ function typeIcon(type: string) {
   if (type === "user_tagged") return "📅";
   if (type === "reaction") return "❤️";
   if (type === "streak_reminder") return "🔥";
+  if (type === "profile_view") return "👁️";
+  if (type === "milestone") return "🎉";
   return "🔔";
 }
 

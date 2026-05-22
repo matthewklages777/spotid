@@ -211,6 +211,40 @@ export function newFollowerEmail(followerName: string, followerProfileUrl: strin
   };
 }
 
+export function premiumWelcomeEmail(name: string, profileUrl: string, settingsUrl: string): EmailTemplate {
+  return {
+    subject: "You're now SpotId Premium ✅",
+    html: `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">
+        <h2 style="color:#4f46e5">SpotId Premium ✅</h2>
+        <p>Hi${name ? ` ${name}` : ""},</p>
+        <p>Your Premium subscription is now active. Here's what you've unlocked:</p>
+        <ul style="color:#374151;line-height:1.8;padding-left:20px">
+          <li><strong>👁️ See who viewed your profile</strong> — full visitor list, last 30 days</li>
+          <li><strong>📊 90-day analytics</strong> — track your growth over time</li>
+          <li><strong>⭐ Priority in Search & Discover</strong> — float to the top when active</li>
+          <li><strong>✅ Verified badge</strong> — show you're a real committed member</li>
+          <li><strong>🕶️ Browse anonymously</strong> — view profiles without appearing in their viewer list</li>
+          <li><strong>📸 Unlimited photo album</strong> — upload as many photos as you want</li>
+        </ul>
+        <p style="margin:28px 0">
+          <a href="${profileUrl}" style="background:#4f46e5;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">
+            View My Profile
+          </a>
+        </p>
+        <p style="color:#6b7280;font-size:13px">
+          You can manage your subscription (including cancellation) at any time from
+          <a href="${settingsUrl}" style="color:#4f46e5">Settings → Subscription</a>.
+          You keep premium access until the end of your billing period.
+        </p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
+        <p style="color:#9ca3af;font-size:12px">SpotId · Tag yourself. Get spotted.</p>
+      </div>
+    `,
+    text: `You're now SpotId Premium!\n\nYou've unlocked: see who viewed your profile, 90-day analytics, priority placement, verified badge, anonymous browsing, and unlimited photos.\n\nView your profile: ${profileUrl}\n\nManage subscription: ${settingsUrl}`,
+  };
+}
+
 export function newMessageEmail(senderName: string, preview: string, inboxUrl: string): EmailTemplate {
   return {
     subject: `New message from ${senderName} on SpotId`,
