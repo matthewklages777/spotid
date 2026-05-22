@@ -6,8 +6,8 @@ buildCommand = "npx prisma generate && DATABASE_URL=file:/tmp/build.db npm run b
 
 [deploy]
 preDeployCommand = "npx prisma migrate deploy"
-startCommand = "npm start"
+startCommand = "npm start -- --port ${PORT:-8080}"
 healthcheckPath = "/api/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
