@@ -2,7 +2,7 @@
 # Railway auto-detects Next.js and uses Nixpacks.
 # The build command runs Prisma migrations then the Next.js build.
 builder = "nixpacks"
-buildCommand = "npx prisma generate && npm run build"
+buildCommand = "npx prisma generate && DATABASE_URL=file:/tmp/build.db npm run build"
 
 [deploy]
 preDeployCommand = "npx prisma migrate deploy"
