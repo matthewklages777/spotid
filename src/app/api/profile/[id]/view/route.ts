@@ -14,15 +14,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const date = new Date().toISOString().slice(0, 10);
 
-  // Increment the aggregate view counters
+  // Increment the aggregate view counters — fetch isPremium too so we avoid a second query later
   const [updatedUser] = await Promise.all([
-    prisma.user.update({ where: { id }, data: { profileViews: { increment: 1 } }, select: { profileViews: true } }),
+    prisma.user.update({ where: { id }, data: { profileViews: { increment: 1 } }, select: { profileViews: true, isPremium: true } }),
     prisma.profileViewStat.upsert({
       where: { userId_date: { userId: id, date } },
       create: { userId: id, date, count: 1 },
       update: { count: { increment: 1 } },
     }),
   ]);
+
+  const profileOwnerIsPremium = updatedUser.isPremium;
 
   // Milestone notifications at 10, 50, 100, 500, 1000, 5000, 10000 total views
   const MILESTONES = [10, 50, 100, 500, 1000, 5000, 10000];
@@ -32,9 +34,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       where: { userId: id, type: "milestone", title: { contains: String(newTotal) } },
     });
     if (!alreadyMilestone) {
-      // Check if profile owner is premium so we can tailor the message
-      const profileOwnerForMilestone = await prisma.user.findUnique({ where: { id }, select: { isPremium: true } });
-      const isPremiumOwner = profileOwnerForMilestone?.isPremium ?? false;
+      const isPremiumOwner = profileOwnerIsPremium;
       await prisma.notification.create({
         data: {
           userId: id,
@@ -65,15 +65,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         },
       });
       if (!existing) {
-        // Create the view record and check if profile owner is premium for notification
-        const [, profileOwner] = await Promise.all([
-          prisma.profileView.create({ data: { viewedId: id, viewerId } }),
-          prisma.user.findUnique({ where: { id }, select: { isPremium: true } }),
-        ]);
+        // Create the view record (isPremium already fetched above)
+        await prisma.profileView.create({ data: { viewedId: id, viewerId } });
 
         // Premium profile owners get a "someone viewed your profile" notification
         // Cap at one such notif per viewer per day to avoid spam
-        if (profileOwner?.isPremium) {
+        if (profileOwnerIsPremium) {
           const viewerProfileLink = `/profile/${viewerId}`;
           const alreadyNotified = await prisma.notification.findFirst({
             where: {
