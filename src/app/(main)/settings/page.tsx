@@ -6,6 +6,54 @@ import Link from "next/link";
 
 interface BlockedUser { id: string; name?: string; username?: string; image?: string }
 
+function CancelSubscriptionButton() {
+  const [phase, setPhase] = useState<"idle" | "confirming" | "done">("idle");
+  const [cancelling, setCancelling] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  async function cancel() {
+    setCancelling(true);
+    const res = await fetch("/api/premium/cancel", { method: "POST" });
+    const data = await res.json();
+    setCancelling(false);
+    if (res.ok) {
+      setMsg(data.message || "Subscription cancelled.");
+      setPhase("done");
+    } else {
+      setMsg(data.error || "Something went wrong.");
+      setPhase("idle");
+    }
+  }
+
+  if (phase === "done") {
+    return <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3">{msg}</p>;
+  }
+  if (phase === "confirming") {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 space-y-2">
+        <p className="text-sm text-red-800 font-medium">Cancel your subscription?</p>
+        <p className="text-xs text-red-600">You&apos;ll keep premium access until the end of your current billing period.</p>
+        <div className="flex gap-2 pt-1">
+          <button onClick={cancel} disabled={cancelling}
+            className="text-sm bg-red-600 text-white px-4 py-1.5 rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50">
+            {cancelling ? "Cancelling…" : "Yes, cancel"}
+          </button>
+          <button onClick={() => setPhase("idle")}
+            className="text-sm bg-gray-100 text-gray-700 px-4 py-1.5 rounded-lg hover:bg-gray-200 transition">
+            Never mind
+          </button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <button onClick={() => setPhase("confirming")}
+      className="text-sm text-red-500 hover:text-red-700 hover:underline transition">
+      Cancel subscription
+    </button>
+  );
+}
+
 export default function SettingsPage() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -290,18 +338,29 @@ export default function SettingsPage() {
 
       {/* Premium & Subscription */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-          <div>
-            <h2 className="font-bold text-gray-900">Subscription</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Manage your SpotId Premium plan.</p>
+        <div className="px-6 py-5 border-b border-gray-100">
+          <h2 className="font-bold text-gray-900">Subscription</h2>
+          <p className="text-sm text-gray-500 mt-0.5">{isPremium ? "You are a SpotId Premium member." : "Manage your SpotId plan."}</p>
+        </div>
+        {isPremium ? (
+          <div className="px-6 py-5 space-y-4">
+            <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
+              <span className="text-2xl">✅</span>
+              <div>
+                <p className="font-semibold text-indigo-900 text-sm">SpotId Premium — Active</p>
+                <p className="text-xs text-indigo-600 mt-0.5">$4.99/month · All premium features enabled</p>
+              </div>
+            </div>
+            <CancelSubscriptionButton />
           </div>
-          <Link href="/upgrade" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition">
-            ✨ Upgrade
-          </Link>
-        </div>
-        <div className="px-6 py-5 text-sm text-gray-600">
-          <p>Get viewer identity, priority search placement, a verified badge, and more for <strong>$4.99/month</strong>.</p>
-        </div>
+        ) : (
+          <div className="px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
+            <p className="text-sm text-gray-600">Get viewer identity, priority placement, a verified badge, and more for <strong>$4.99/month</strong>.</p>
+            <Link href="/upgrade" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
+              ✨ Upgrade →
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Privacy & Data */}

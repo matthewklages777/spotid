@@ -11,5 +11,6 @@ Disallow: /feed/
 Disallow: /followers/
 Disallow: /following-tags/
 Disallow: /invite/
+Disallow: /upgrade/
 
-Sitemap: https://spotid.app/sitemap.xml
+Sitemap: https://www.spotidapp.com/sitemap.xml

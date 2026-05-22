@@ -7,8 +7,8 @@ import Link from "next/link";
 interface Hashtag { id: string; name: string }
 interface ActiveUser {
   id: string; name?: string; image?: string; location?: string;
-  occupation?: string; username?: string;
-  dailyProfiles: { hashtags: { hashtag: Hashtag }[] }[];
+  occupation?: string; username?: string; isPremium?: boolean;
+  dailyProfiles: { image?: string; hashtags: { hashtag: Hashtag }[] }[];
 }
 interface ClosetItem {
   id: string; title: string; price?: number; image?: string;
@@ -207,44 +207,56 @@ export default function TagClient() {
             <span className="text-sm text-gray-400">({data!.users.length})</span>
           </div>
           <div className="divide-y divide-gray-50">
-            {data!.users.map((u) => (
-              <div key={u.id}
-                onClick={() => router.push(`/profile/${u.id}`)}
-                className="flex items-start gap-4 px-5 py-3.5 hover:bg-gray-50 transition cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
-                  {u.image
-                    ? <img src={u.image} alt={u.name} className="w-full h-full object-cover" />
-                    : (u.name?.[0] ?? "?").toUpperCase()
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 text-sm">{u.name || "Anonymous"}</p>
-                  {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
-                  {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}
-                  {u.location && <p className="text-xs text-gray-400">📍 {u.location}</p>}
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {u.dailyProfiles[0]?.hashtags.slice(0, 6).map(({ hashtag }) => (
-                      <Link
-                        key={hashtag.id}
-                        href={`/tag/${hashtag.name}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          hashtag.name === tag
-                            ? "bg-indigo-600 text-white"
-                            : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                        }`}
-                      >
-                        #{hashtag.name}
-                      </Link>
-                    ))}
+            {data!.users.map((u) => {
+              const todayDaily = u.dailyProfiles[0];
+              return (
+                <div key={u.id}
+                  onClick={() => router.push(`/profile/${u.id}`)}
+                  className="hover:bg-gray-50 transition cursor-pointer overflow-hidden"
+                >
+                  {todayDaily?.image && (
+                    <div className="w-full h-28 overflow-hidden">
+                      <img src={todayDaily.image} alt="Today" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex items-start gap-4 px-5 py-3.5">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
+                      {u.image
+                        ? <img src={u.image} alt={u.name} className="w-full h-full object-cover" />
+                        : (u.name?.[0] ?? "?").toUpperCase()
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm flex items-center gap-1">
+                        {u.name || "Anonymous"}{u.isPremium && <span className="text-blue-500 text-xs">✅</span>}
+                      </p>
+                      {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
+                      {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}
+                      {u.location && <p className="text-xs text-gray-400">📍 {u.location}</p>}
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {todayDaily?.hashtags.slice(0, 6).map(({ hashtag }) => (
+                          <Link
+                            key={hashtag.id}
+                            href={`/tag/${hashtag.name}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              hashtag.name === tag
+                                ? "bg-indigo-600 text-white"
+                                : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                            }`}
+                          >
+                            #{hashtag.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0">
+                      Active
+                    </span>
                   </div>
                 </div>
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0">
-                  Active
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

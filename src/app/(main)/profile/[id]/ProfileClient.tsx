@@ -184,7 +184,8 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
   useEffect(() => {
     if (isOwn) {
       fetch("/api/profile/stats").then((r) => r.json()).then((d) => {
-        if (Array.isArray(d)) setViewStats(d);
+        if (Array.isArray(d.stats)) setViewStats(d.stats);
+        else if (Array.isArray(d)) setViewStats(d); // backwards compat
       }).catch(() => {});
       fetch("/api/premium/viewers").then((r) => r.json()).then((d) => {
         if (d && typeof d.count === "number") setViewers(d);
@@ -848,9 +849,15 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         {/* View sparkline — owner only */}
         {isOwn && viewStats.length > 1 && (() => {
           const max = Math.max(...viewStats.map((s) => s.count), 1);
+          const isPrem = profile?.isPremium;
           return (
             <div className="pt-4 mt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-500 mb-2 font-medium">Profile views — last {viewStats.length} days</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-gray-500 font-medium">Profile views — last {viewStats.length} days</p>
+                {!isPrem && (
+                  <Link href="/upgrade" className="text-xs text-indigo-500 hover:underline">90-day history with Premium →</Link>
+                )}
+              </div>
               <div className="flex items-end gap-1 h-10">
                 {viewStats.map((s) => {
                   const pct = Math.max((s.count / max) * 100, 4);

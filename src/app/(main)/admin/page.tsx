@@ -422,6 +422,59 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* Cron Jobs */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <div>
+          <h2 className="font-bold text-gray-900">Cron Jobs</h2>
+          <p className="text-sm text-gray-400 mt-0.5">Trigger scheduled jobs manually. These run automatically when Railway cron is configured.</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <CronButton label="🔥 Streak Reminders" endpoint="/api/cron/streak-reminder" />
+          <CronButton label="📰 Weekly Digest" endpoint="/api/cron/digest" />
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+function CronButton({ label, endpoint }: { label: string; endpoint: string }) {
+  const [status, setStatus] = useState<"idle" | "running" | "done" | "error">("idle");
+  const [result, setResult] = useState("");
+
+  async function run() {
+    setStatus("running");
+    setResult("");
+    try {
+      const secret = prompt("Enter CRON_SECRET (or leave blank if not set):");
+      const res = await fetch(`${endpoint}?secret=${encodeURIComponent(secret || "")}`, { method: "GET" });
+      const data = await res.json();
+      setResult(JSON.stringify(data, null, 2));
+      setStatus(res.ok ? "done" : "error");
+    } catch (e) {
+      setResult(String(e));
+      setStatus("error");
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        onClick={run}
+        disabled={status === "running"}
+        className={`text-sm px-4 py-2 rounded-xl font-semibold transition ${
+          status === "done" ? "bg-green-100 text-green-700" :
+          status === "error" ? "bg-red-100 text-red-700" :
+          "bg-indigo-600 text-white hover:bg-indigo-700"
+        } disabled:opacity-50`}
+      >
+        {status === "running" ? "Running…" : status === "done" ? "✓ Done" : status === "error" ? "✗ Error" : label}
+      </button>
+      {result && (
+        <pre className="text-xs bg-gray-50 border border-gray-200 rounded-lg p-2 max-w-xs overflow-auto max-h-24 text-gray-600">
+          {result}
+        </pre>
+      )}
     </div>
   );
 }
