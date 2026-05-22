@@ -94,6 +94,7 @@ model DailyProfile {
   id        String               @id @default(cuid())
   date      String
   note      String?
+  image     String?
   userId    String
   user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   hashtags  DailyProfileHashtag[]

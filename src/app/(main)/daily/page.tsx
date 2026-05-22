@@ -1,17 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { HashtagInput } from "@/components/HashtagInput";
 import Link from "next/link";
 
 interface DailyProfile {
-  id: string; date: string; note?: string;
+  id: string; date: string; note?: string; image?: string;
   hashtags: { hashtag: { id: string; name: string } }[];
 }
 
 interface HistoryEntry {
-  id: string; date: string; note?: string;
+  id: string; date: string; note?: string; image?: string;
   hashtags: { hashtag: { id: string; name: string } }[];
 }
 
@@ -63,12 +63,15 @@ export default function DailyPage() {
   const [existing, setExisting] = useState<DailyProfile | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [note, setNote] = useState("");
+  const [dailyImage, setDailyImage] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [streak, setStreak] = useState(0);
   const [trendingTags, setTrendingTags] = useState<string[]>([]);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/signin");
@@ -81,6 +84,7 @@ export default function DailyPage() {
         setExisting(data);
         setHashtags(data.hashtags.map((h: { hashtag: { name: string } }) => h.hashtag.name));
         setNote(data.note || "");
+        setDailyImage(data.image || null);
       }
     });
     fetch("/api/daily?history=1").then((r) => r.json()).then((data: HistoryEntry[]) => {
@@ -103,13 +107,28 @@ export default function DailyPage() {
     if (!hashtags.includes(clean)) setHashtags([...hashtags, clean]);
   }
 
+  async function handlePhotoSelect(file: File) {
+    setUploadingPhoto(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (res.ok) {
+        const { url } = await res.json();
+        setDailyImage(url);
+      }
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
   async function save() {
     setSaving(true);
     setSaved(false);
     const res = await fetch("/api/daily", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hashtags, note }),
+      body: JSON.stringify({ hashtags, note, image: dailyImage }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -126,6 +145,7 @@ export default function DailyPage() {
     setExisting(null);
     setHashtags([]);
     setNote("");
+    setDailyImage(null);
     setSaved(false);
   }
 
@@ -284,6 +304,62 @@ export default function DailyPage() {
             onChange={(e) => setNote(e.target.value.slice(0, 500))}
             placeholder="Add context — where you'll be, what you're looking for, how to reach you…"
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
+          />
+        </div>
+
+        {/* Daily photo */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Today&apos;s Photo <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            {dailyImage && (
+              <button
+                type="button"
+                onClick={() => { setDailyImage(null); if (photoInputRef.current) photoInputRef.current.value = ""; }}
+                className="text-xs text-red-400 hover:text-red-600 hover:underline"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+
+          {dailyImage ? (
+            <div className="relative rounded-xl overflow-hidden border border-gray-200">
+              <img src={dailyImage} alt="Today's photo" className="w-full max-h-72 object-cover" />
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full hover:bg-black/80 transition"
+              >
+                Change photo
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={uploadingPhoto}
+              className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-indigo-400 hover:bg-indigo-50 transition group"
+            >
+              {uploadingPhoto ? (
+                <p className="text-sm text-gray-400">Uploading…</p>
+              ) : (
+                <>
+                  <p className="text-3xl mb-2 group-hover:scale-110 transition-transform">📷</p>
+                  <p className="text-sm font-semibold text-gray-600">Add a photo to your day</p>
+                  <p className="text-xs text-gray-400 mt-1">Haircut, outfit, where you are — anything real-time</p>
+                </>
+              )}
+            </button>
+          )}
+
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhotoSelect(f); }}
           />
         </div>
 

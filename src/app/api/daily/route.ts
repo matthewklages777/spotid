@@ -61,12 +61,15 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Too many updates. Please slow down." }, { status: 429 });
   }
 
-  const { hashtags, note } = await req.json();
+  const { hashtags, note, image } = await req.json();
   if (note !== undefined && note !== null && (typeof note !== "string" || note.length > 500)) {
     return Response.json({ error: "Note must be under 500 characters" }, { status: 400 });
   }
   if (!Array.isArray(hashtags)) {
     return Response.json({ error: "hashtags must be an array" }, { status: 400 });
+  }
+  if (image !== undefined && image !== null && typeof image !== "string") {
+    return Response.json({ error: "image must be a string URL" }, { status: 400 });
   }
   const date = todayStr();
 
@@ -87,6 +90,7 @@ export async function POST(req: NextRequest) {
       where: { id: existing.id },
       data: {
         note,
+        ...(image !== undefined ? { image: image || null } : {}),
         hashtags: { create: tags.map((t) => ({ hashtagId: t.id })) },
       },
       include: { hashtags: { include: { hashtag: true } } },
@@ -97,10 +101,19 @@ export async function POST(req: NextRequest) {
         userId,
         date,
         note,
+        image: image || null,
         hashtags: { create: tags.map((t) => ({ hashtagId: t.id })) },
       },
       include: { hashtags: { include: { hashtag: true } } },
     });
+  }
+
+  // If a new photo was uploaded, also save it to the photo album (ProfilePhoto)
+  if (image) {
+    const alreadyInAlbum = await prisma.profilePhoto.findFirst({ where: { userId, url: image } });
+    if (!alreadyInAlbum) {
+      await prisma.profilePhoto.create({ data: { userId, url: image, caption: `Daily photo — ${date}` } });
+    }
   }
 
   // Notify followers of any hashtags just tagged — one notification per follower per poster per day

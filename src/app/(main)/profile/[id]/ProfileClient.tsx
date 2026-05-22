@@ -9,7 +9,7 @@ import { HashtagInput } from "@/components/HashtagInput";
 interface ProfilePhoto { id: string; url: string; caption?: string }
 interface Hashtag { id: string; name: string }
 interface DailyProfile {
-  id: string; date: string; note?: string;
+  id: string; date: string; note?: string; image?: string;
   hashtags: { hashtag: Hashtag }[];
 }
 interface ClosetItem {
@@ -38,7 +38,7 @@ interface UserProfile {
   interestTags: { hashtag: { name: string } }[];
 }
 
-type Tab = "about" | "daily" | "closet" | "work";
+type Tab = "about" | "photos" | "closet" | "work";
 
 export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) {
   const params = useParams<{ id?: string }>();
@@ -355,7 +355,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
 
   const tabs: { key: Tab; label: string; count?: number }[] = [
     { key: "about", label: "About" },
-    { key: "daily", label: "Daily", count: hasTodayProfile ? (daily?.hashtags.length ?? 0) : 0 },
+    { key: "photos", label: "Photos", count: profile.profilePhotos.length },
     { key: "closet", label: "Closet", count: activeCloset.length },
     { key: "work", label: "Work", count: profile.workItems.length },
   ];
@@ -422,9 +422,9 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         </div>
       )}
 
-      {/* Cover banner */}
+      {/* Cover banner — taller, more dramatic */}
       <div
-        className={`h-40 rounded-t-2xl overflow-hidden relative group ${!profile.coverImage ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" : ""}`}
+        className={`h-56 rounded-t-2xl overflow-hidden relative group ${!profile.coverImage ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" : ""}`}
       >
         {profile.coverImage && (
           <img src={profile.coverImage} alt="Cover" className="w-full h-full object-cover" />
@@ -451,11 +451,11 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
 
       {/* Profile header card */}
       <div className="bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100 px-6 pb-6">
-        <div className="flex items-end justify-between -mt-10 mb-4">
+        <div className="flex items-end justify-between -mt-14 mb-4">
 
-          {/* Avatar — clickable for owner */}
+          {/* Avatar — larger, more Facebook-like */}
           <div className="relative group flex-shrink-0">
-            <div className="w-20 h-20 rounded-full bg-white ring-4 ring-white overflow-hidden flex items-center justify-center text-3xl font-bold text-indigo-600 bg-indigo-100">
+            <div className="w-28 h-28 rounded-full bg-white ring-4 ring-white overflow-hidden flex items-center justify-center text-4xl font-bold text-indigo-600 bg-indigo-100">
               {profile.image
                 ? <img src={profile.image} alt={profile.name} className="w-full h-full object-cover" />
                 : (profile.name?.[0] ?? "?").toUpperCase()
@@ -482,7 +482,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 flex-wrap justify-end">
+          <div className="flex items-center gap-2 flex-wrap justify-end pt-16">
             {/* Copy link */}
             <button
               onClick={copyLink}
@@ -644,8 +644,21 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
           )}
         </div>
 
-        {/* Stats row */}
-        <div className="flex gap-6 mt-4 pt-4 border-t border-gray-100 text-center">
+        {/* Stats row — prominent, with pulsing active indicator and follower count always shown */}
+        <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-100 text-center items-end">
+          {/* Followers — always prominent */}
+          {isOwn ? (
+            <Link href="/followers" className="hover:opacity-75 transition">
+              <p className="text-xl font-bold text-gray-900">{followerCount}</p>
+              <p className="text-xs text-gray-500">Followers</p>
+            </Link>
+          ) : (
+            <div>
+              <p className="text-xl font-bold text-gray-900">{followerCount}</p>
+              <p className="text-xs text-gray-500">Followers</p>
+            </div>
+          )}
+
           <div>
             <p className="text-xl font-bold text-gray-900">{profile.profilePhotos.length}</p>
             <p className="text-xs text-gray-500">Photos</p>
@@ -658,12 +671,24 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
             <p className="text-xl font-bold text-gray-900">{profile.workItems.length}</p>
             <p className="text-xs text-gray-500">Services</p>
           </div>
-          <div>
-            <p className={`text-xl font-bold ${hasTodayProfile ? "text-green-600" : "text-gray-300"}`}>
-              {hasTodayProfile ? "●" : "○"}
+
+          {/* Active Today — pulsing green dot when active */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center justify-center h-7">
+              {hasTodayProfile ? (
+                <span className="relative flex h-4 w-4">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500" />
+                </span>
+              ) : (
+                <span className="inline-flex rounded-full h-4 w-4 bg-gray-200" />
+              )}
+            </div>
+            <p className={`text-xs mt-0.5 font-medium ${hasTodayProfile ? "text-green-600" : "text-gray-400"}`}>
+              {hasTodayProfile ? "Active" : "Not active"}
             </p>
-            <p className="text-xs text-gray-500">Active Today</p>
           </div>
+
           {(profile.streak ?? 0) > 1 && (
             <div>
               <p className="text-xl font-bold text-orange-500">🔥 {profile.streak}</p>
@@ -675,19 +700,6 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
               <p className="text-xl font-bold text-indigo-500">{profile.totalDays}</p>
               <p className="text-xs text-gray-500">Days Tagged</p>
             </div>
-          )}
-          {followerCount > 0 && (
-            isOwn ? (
-              <Link href="/followers" className="hover:opacity-75 transition">
-                <p className="text-xl font-bold text-gray-800">{followerCount}</p>
-                <p className="text-xs text-gray-500">Followers</p>
-              </Link>
-            ) : (
-              <div>
-                <p className="text-xl font-bold text-gray-800">{followerCount}</p>
-                <p className="text-xs text-gray-500">Followers</p>
-              </div>
-            )
           )}
           {isOwn && (
             <div>
@@ -728,7 +740,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
 
           if (earned.length === 0) return null;
           return (
-            <div className="px-6 py-3 border-t border-gray-100">
+            <div className="pt-3 border-t border-gray-100 mt-3">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Badges</p>
               <div className="flex flex-wrap gap-2">
                 {earned.map((b) => (
@@ -750,7 +762,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         {isOwn && viewStats.length > 1 && (() => {
           const max = Math.max(...viewStats.map((s) => s.count), 1);
           return (
-            <div className="px-6 pb-4">
+            <div className="pt-4 mt-3 border-t border-gray-100">
               <p className="text-xs text-gray-500 mb-2 font-medium">Profile views — last {viewStats.length} days</p>
               <div className="flex items-end gap-1 h-10">
                 {viewStats.map((s) => {
@@ -776,24 +788,19 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
 
         {/* Tag activity heatmap — shown to everyone */}
         {heatmap.length > 0 && (() => {
-          // Build a full 52-week grid ending today
-          const today = new Date();
-          const todayStr = today.toISOString().split("T")[0];
-          // Align grid to start on Sunday, 52 weeks back
-          const startDay = new Date(today);
-          startDay.setDate(startDay.getDate() - 363); // ~52 weeks
-          // Roll back to the nearest Sunday
+          const todayDate = new Date();
+          const startDay = new Date(todayDate);
+          startDay.setDate(startDay.getDate() - 363);
           startDay.setDate(startDay.getDate() - startDay.getDay());
 
           const dayMap = new Map(heatmap.map((d) => [d.date, d.count]));
           const cells: { date: string; count: number }[] = [];
           const cur = new Date(startDay);
-          while (cur <= today) {
+          while (cur <= todayDate) {
             const ds = cur.toISOString().split("T")[0];
             cells.push({ date: ds, count: dayMap.get(ds) ?? 0 });
             cur.setDate(cur.getDate() + 1);
           }
-          // Pad end to complete the last week
           while (cells.length % 7 !== 0) {
             const last = new Date(cells[cells.length - 1].date + "T12:00:00Z");
             last.setDate(last.getDate() + 1);
@@ -813,12 +820,12 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
             return "bg-indigo-600";
           }
 
-          const totalDays = heatmap.length;
+          const totalTagDays = heatmap.length;
           return (
-            <div className="px-6 pb-4 pt-2 border-t border-gray-100 mt-2">
+            <div className="pb-4 pt-2 border-t border-gray-100 mt-3">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-gray-500">
-                  Tagging activity — {totalDays} day{totalDays !== 1 ? "s" : ""} in the last year
+                  Tagging activity — {totalTagDays} day{totalTagDays !== 1 ? "s" : ""} in the last year
                 </p>
                 <div className="flex items-center gap-1 text-xs text-gray-400">
                   <span>Less</span>
@@ -1021,6 +1028,98 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         )}
       </div>
 
+      {/* ── TODAY CARD — Featured daily profile, between header and tabs ── */}
+      {hasTodayProfile && daily ? (
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-sm border border-indigo-100 p-5 mt-4 relative overflow-hidden">
+          {/* Subtle glow accent */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-300/20 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="flex items-start justify-between gap-3 mb-3">
+            {/* LIVE TODAY badge */}
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
+              </span>
+              <span className="text-sm font-bold text-green-700 uppercase tracking-wide">Live Today</span>
+            </div>
+
+            {/* Like button — non-owner only */}
+            {!isOwn && myId && (
+              <button
+                onClick={toggleLike}
+                className={`flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-full transition font-semibold flex-shrink-0 ${
+                  liked
+                    ? "bg-red-100 text-red-600 hover:bg-red-200"
+                    : "bg-white/80 text-gray-500 hover:bg-red-50 hover:text-red-500 border border-gray-200"
+                }`}
+              >
+                <span>{liked ? "❤️" : "🤍"}</span>
+                {likeCount > 0 && <span>{likeCount}</span>}
+              </button>
+            )}
+            {isOwn && likeCount > 0 && (
+              <span className="text-sm text-gray-500 flex items-center gap-1">❤️ {likeCount}</span>
+            )}
+          </div>
+
+          {/* Daily note */}
+          {daily.note && (
+            <p className="text-gray-700 mb-4 leading-relaxed text-base">{daily.note}</p>
+          )}
+
+          {/* Daily photo */}
+          {daily.image && (
+            <div
+              className="mb-4 rounded-xl overflow-hidden cursor-pointer"
+              onClick={() => setLightboxUrl(daily.image!)}
+            >
+              <img
+                src={daily.image}
+                alt="Today's photo"
+                className="w-full max-h-80 object-cover hover:opacity-95 transition-opacity"
+              />
+            </div>
+          )}
+
+          {/* Hashtags — large, colorful pill buttons */}
+          <div className="flex flex-wrap gap-2.5">
+            {daily.hashtags.map(({ hashtag }) => (
+              <Link
+                key={hashtag.id}
+                href={`/tag/${hashtag.name}`}
+                className="bg-indigo-600 text-white text-base font-semibold px-5 py-2 rounded-full hover:bg-indigo-700 active:scale-95 transition-all shadow-sm hover:shadow-md"
+              >
+                #{hashtag.name}
+              </Link>
+            ))}
+          </div>
+
+          {isOwn && (
+            <div className="mt-4 pt-3 border-t border-indigo-100">
+              <Link
+                href="/daily"
+                className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:underline font-medium"
+              >
+                ✏️ Update today&apos;s tags
+              </Link>
+            </div>
+          )}
+        </div>
+      ) : isOwn ? (
+        /* Owner hasn't tagged today — show a subtle CTA */
+        <div className="mt-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center">
+          <p className="text-gray-400 text-sm font-medium mb-1">You haven&apos;t tagged today yet</p>
+          <p className="text-gray-400 text-xs mb-3">Tag your location, outfit, plans — anything about your day — so people can find you.</p>
+          <Link
+            href="/daily"
+            className="inline-block bg-indigo-600 text-white text-sm px-6 py-2 rounded-full hover:bg-indigo-700 transition font-semibold"
+          >
+            Tag Today
+          </Link>
+        </div>
+      ) : null}
+
       {/* Tab bar */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm mt-4 overflow-hidden">
         <div className="flex border-b border-gray-100">
@@ -1138,136 +1237,10 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
               ) : null}
             </div>
 
-            {/* Photo gallery */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Photos</h2>
-                {isOwn && (
-                  <>
-                    <button onClick={() => fileRef.current?.click()} disabled={uploadingPhoto}
-                      className="text-sm text-indigo-600 hover:underline disabled:opacity-50">
-                      {uploadingPhoto ? "Uploading…" : "+ Add Photo"}
-                    </button>
-                    <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                      onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
-                  </>
-                )}
-              </div>
-              {profile.profilePhotos.length === 0 ? (
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400">
-                  <p className="text-3xl mb-2">📷</p>
-                  <p className="text-sm">{isOwn ? "Add photos to your permanent profile" : "No photos yet"}</p>
-                  {isOwn && (
-                    <button onClick={() => fileRef.current?.click()}
-                      className="mt-3 text-sm text-indigo-600 hover:underline">
-                      Upload a photo
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {profile.profilePhotos.map((photo) => (
-                    <div key={photo.id} className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100">
-                      <img
-                        src={photo.url}
-                        alt={photo.caption || ""}
-                        className="w-full h-full object-cover cursor-pointer"
-                        onClick={() => setLightboxUrl(photo.url)}
-                      />
-                      {isOwn && (
-                        <button onClick={() => deletePhoto(photo.id)}
-                          className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition">
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  {isOwn && (
-                    <button onClick={() => fileRef.current?.click()}
-                      className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 hover:border-indigo-400 hover:text-indigo-400 transition text-2xl">
-                      +
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── DAILY TAB ── */}
-        {tab === "daily" && (
-          <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Today&apos;s Profile</h2>
-              <span className="text-xs text-gray-400">{today}</span>
-            </div>
-
-            {hasTodayProfile && daily ? (
-              <div className="space-y-4">
-                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      <span className="text-sm font-semibold text-green-700">Active Today</span>
-                    </div>
-                    {!isOwn && myId && (
-                      <button
-                        onClick={toggleLike}
-                        className={`flex items-center gap-1.5 text-sm px-3 py-1 rounded-full transition ${
-                          liked
-                            ? "bg-red-100 text-red-600 hover:bg-red-200"
-                            : "bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500"
-                        }`}
-                      >
-                        <span>{liked ? "❤️" : "🤍"}</span>
-                        {likeCount > 0 && <span className="font-medium">{likeCount}</span>}
-                      </button>
-                    )}
-                    {(isOwn && likeCount > 0) && (
-                      <span className="text-sm text-gray-500">❤️ {likeCount}</span>
-                    )}
-                  </div>
-                  {daily.note && <p className="text-gray-700 mb-4 leading-relaxed">{daily.note}</p>}
-                  <div className="flex flex-wrap gap-2">
-                    {daily.hashtags.map(({ hashtag }) => (
-                      <Link key={hashtag.id} href={`/tag/${hashtag.name}`}
-                        className="bg-indigo-600 text-white text-sm px-3 py-1 rounded-full hover:bg-indigo-700 transition">
-                        #{hashtag.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                {isOwn && (
-                  <Link href="/daily"
-                    className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:underline">
-                    ✏️ Update today&apos;s tags
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center text-gray-400">
-                <p className="text-4xl mb-3">📅</p>
-                <p className="font-medium text-gray-500">
-                  {isOwn ? "You haven't tagged today yet" : "Not tagged today"}
-                </p>
-                <p className="text-sm mt-1">
-                  {isOwn
-                    ? "Tag your location, outfit, plans — anything about your day — so people can find you."
-                    : "Check back later or search their other hashtags."}
-                </p>
-                {isOwn && (
-                  <Link href="/daily"
-                    className="mt-4 inline-block bg-indigo-600 text-white text-sm px-6 py-2 rounded-full hover:bg-indigo-700 transition">
-                    Tag Today
-                  </Link>
-                )}
-              </div>
-            )}
-
-            {/* Recent history */}
+            {/* Recent tag history */}
             {profile.dailyProfiles.filter((d) => d.date !== today).length > 0 && (
               <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Recent Days</h3>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Recent Tag History</h3>
                 <div className="space-y-2">
                   {profile.dailyProfiles.filter((d) => d.date !== today).map((d) => (
                     <div key={d.id} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
@@ -1288,6 +1261,62 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── PHOTOS TAB ── */}
+        {tab === "photos" && (
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Photos</h2>
+              {isOwn && (
+                <>
+                  <button onClick={() => fileRef.current?.click()} disabled={uploadingPhoto}
+                    className="text-sm text-indigo-600 hover:underline disabled:opacity-50">
+                    {uploadingPhoto ? "Uploading…" : "+ Add Photo"}
+                  </button>
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                    onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
+                </>
+              )}
+            </div>
+            {profile.profilePhotos.length === 0 ? (
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400">
+                <p className="text-3xl mb-2">📷</p>
+                <p className="text-sm">{isOwn ? "Add photos to your permanent profile" : "No photos yet"}</p>
+                {isOwn && (
+                  <button onClick={() => fileRef.current?.click()}
+                    className="mt-3 text-sm text-indigo-600 hover:underline">
+                    Upload a photo
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {profile.profilePhotos.map((photo) => (
+                  <div key={photo.id} className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100">
+                    <img
+                      src={photo.url}
+                      alt={photo.caption || ""}
+                      className="w-full h-full object-cover cursor-pointer"
+                      onClick={() => setLightboxUrl(photo.url)}
+                    />
+                    {isOwn && (
+                      <button onClick={() => deletePhoto(photo.id)}
+                        className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition">
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {isOwn && (
+                  <button onClick={() => fileRef.current?.click()}
+                    className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 hover:border-indigo-400 hover:text-indigo-400 transition text-2xl">
+                    +
+                  </button>
+                )}
               </div>
             )}
           </div>
