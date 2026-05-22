@@ -13,12 +13,14 @@ export async function GET() {
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { isPremium: true } });
   const days = user?.isPremium ? 90 : 14;
 
-  const stats = await prisma.profileViewStat.findMany({
+  // Fetch the most recent N days (desc) then reverse for chronological order
+  const rawStats = await prisma.profileViewStat.findMany({
     where: { userId },
-    orderBy: { date: "asc" },
+    orderBy: { date: "desc" },
     take: days,
     select: { date: true, count: true },
   });
+  const stats = rawStats.reverse();
 
   return Response.json({ stats, isPremium: user?.isPremium ?? false, days });
 }
