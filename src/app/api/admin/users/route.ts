@@ -24,7 +24,7 @@ export async function GET() {
   });
   const reportCounts = Object.fromEntries(reports.map((r: { reportedId: string; _count: { id: number } }) => [r.reportedId, r._count.id]));
 
-  const enriched = users.map((u) => ({ ...u, reportCount: reportCounts[u.id] || 0 }));
+  const enriched = users.map((u: (typeof users)[number]) => ({ ...u, reportCount: reportCounts[u.id] || 0 }));
   return Response.json(enriched);
 }
 
