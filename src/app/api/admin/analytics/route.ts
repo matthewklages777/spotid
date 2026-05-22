@@ -32,6 +32,8 @@ export async function GET() {
     totalWork,
     totalFollows,
     totalReactions,
+    totalPremium,
+    newPremium7d,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { createdAt: { gte: daysAgo(7) } } }),
@@ -46,6 +48,8 @@ export async function GET() {
     prisma.workItem.count(),
     prisma.follow.count(),
     prisma.dailyProfileReaction.count(),
+    prisma.user.count({ where: { isPremium: true } }),
+    prisma.user.count({ where: { isPremium: true, premiumSince: { gte: daysAgo(7) } } }),
   ]);
 
   // Signups per day — last 30 days
@@ -102,7 +106,7 @@ export async function GET() {
   }));
 
   return Response.json({
-    totals: { totalUsers, newUsers7d, newUsers30d, activeToday, active7d, totalDailyProfiles, dailyProfiles7d, totalMessages, messages7d, totalCloset, totalWork, totalFollows, totalReactions },
+    totals: { totalUsers, newUsers7d, newUsers30d, activeToday, active7d, totalDailyProfiles, dailyProfiles7d, totalMessages, messages7d, totalCloset, totalWork, totalFollows, totalReactions, totalPremium, newPremium7d },
     signupTrend,
     dapTrend,
     topTags,

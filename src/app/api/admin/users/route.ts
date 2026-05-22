@@ -10,7 +10,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     select: {
       id: true, name: true, email: true, createdAt: true,
-      onboardingComplete: true, banned: true,
+      onboardingComplete: true, banned: true, isPremium: true, premiumSince: true,
       _count: {
         select: { closetItems: true, workItems: true, dailyProfiles: true, profilePhotos: true },
       },

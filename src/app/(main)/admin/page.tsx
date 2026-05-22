@@ -7,6 +7,7 @@ import Link from "next/link";
 interface AdminUser {
   id: string; name?: string; email: string; createdAt: string;
   onboardingComplete: boolean; reportCount: number; banned: boolean;
+  isPremium: boolean; premiumSince?: string;
   _count: { closetItems: number; workItems: number; dailyProfiles: number; profilePhotos: number };
 }
 
@@ -27,6 +28,7 @@ interface Analytics {
     totalMessages: number; messages7d: number;
     totalCloset: number; totalWork: number;
     totalFollows: number; totalReactions: number;
+    totalPremium: number; newPremium7d: number;
   };
   signupTrend: { date: string; count: number }[];
   dapTrend: { date: string; count: number }[];
@@ -266,7 +268,8 @@ export default function AdminPage() {
                       {u.name || "—"}
                     </Link>
                     <p className="text-xs text-gray-400">{u.email}</p>
-                    {u.banned && <span className="text-xs bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded font-medium">Banned</span>}
+                    {u.isPremium && <span className="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-medium">✅ Premium</span>}
+                    {u.banned && <span className="text-xs bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded font-medium ml-1">Banned</span>}
                   </td>
                   <td className="px-3 py-3 text-center">
                     {u.reportCount > 0
@@ -324,11 +327,13 @@ export default function AdminPage() {
                   { label: "Messages (7d)", value: analytics.totals.messages7d, sub: `${analytics.totals.totalMessages} all time`, color: "text-purple-600" },
                   { label: "Active Listings", value: analytics.totals.totalCloset, sub: "Closet items", color: "text-orange-600" },
                   { label: "Services", value: analytics.totals.totalWork, sub: "Work listings", color: "text-teal-600" },
-                  { label: "Total Follows", value: analytics.totals.totalFollows, sub: "User connections", color: "text-blue-600" },
-                  { label: "Total Likes", value: analytics.totals.totalReactions, sub: "Daily profile reactions", color: "text-red-500" },
+                  { label: "Premium Members", value: analytics.totals.totalPremium, display: String(analytics.totals.totalPremium), sub: `+${analytics.totals.newPremium7d} this week`, color: "text-yellow-600" },
+                  { label: "Est. MRR", value: analytics.totals.totalPremium * 4.99, display: `$${(analytics.totals.totalPremium * 4.99).toFixed(2)}`, sub: `$${(analytics.totals.totalPremium * 4.99 * 12).toFixed(0)}/yr run rate`, color: "text-green-700" },
+                  { label: "Total Follows", value: analytics.totals.totalFollows, display: analytics.totals.totalFollows.toLocaleString(), sub: "User connections", color: "text-blue-600" },
+                  { label: "Total Likes", value: analytics.totals.totalReactions, display: analytics.totals.totalReactions.toLocaleString(), sub: "Daily profile reactions", color: "text-red-500" },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <p className={`text-3xl font-black ${stat.color}`}>{stat.value.toLocaleString()}</p>
+                    <p className={`text-3xl font-black ${stat.color}`}>{("display" in stat ? stat.display : null) ?? stat.value.toLocaleString()}</p>
                     <p className="text-sm font-semibold text-gray-700 mt-1">{stat.label}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{stat.sub}</p>
                   </div>
