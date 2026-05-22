@@ -79,7 +79,7 @@ export async function GET() {
   });
   const dapTrend = Array.from({ length: 30 }, (_, i) => {
     const d = dateStr(29 - i);
-    const row = dapGrouped.find((r) => r.date === d);
+    const row = dapGrouped.find((r: { date: string; _count: { userId: number } }) => r.date === d);
     return { date: d, count: row?._count.userId ?? 0 };
   });
 
