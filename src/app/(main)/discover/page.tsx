@@ -30,6 +30,7 @@ interface DiscoverData {
 interface SuggestedPerson {
   id: string; name?: string; image?: string; occupation?: string; location?: string;
   username?: string; openToContact: boolean; overlapCount: number; overlapTags: string[];
+  isPremium?: boolean;
 }
 
 type Tab = "everyone" | "following" | "foryou" | "nearby";
@@ -406,7 +407,9 @@ export default function DiscoverPage() {
                     <div className="flex items-start gap-4 px-5 py-3.5 hover:bg-gray-50 transition">
                       <Avatar image={u.image} name={u.name} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm">{u.name || "Anonymous"}</p>
+                        <p className="font-semibold text-gray-900 text-sm flex items-center gap-1">
+                          {u.name || "Anonymous"}{u.isPremium && <span className="text-blue-500 text-xs">✅</span>}
+                        </p>
                         {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
                         {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}
                         {u.location && <p className="text-xs text-gray-400">📍 {u.location}</p>}
@@ -463,7 +466,9 @@ export default function DiscoverPage() {
                         <div className="flex items-start gap-4 px-5 py-3.5 hover:bg-gray-50 transition">
                           <Avatar image={u.image} name={u.name} />
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 text-sm">{u.name || "Anonymous"}</p>
+                            <p className="font-semibold text-gray-900 text-sm flex items-center gap-1">
+                              {u.name || "Anonymous"}{u.isPremium && <span className="text-blue-500 text-xs">✅</span>}
+                            </p>
                             {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
                             <div className="flex flex-wrap gap-1 mt-1.5">
                               {u.overlapTags.slice(0, 4).map((tag) => (

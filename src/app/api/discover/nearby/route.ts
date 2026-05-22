@@ -34,7 +34,7 @@ export async function GET() {
       dailyProfiles: { some: { date: today, hashtags: { some: {} } } },
     },
     select: {
-      id: true, name: true, image: true, location: true, occupation: true, username: true,
+      id: true, name: true, image: true, location: true, occupation: true, username: true, isPremium: true,
       dailyProfiles: {
         where: { date: today },
         include: { hashtags: { include: { hashtag: true } } },

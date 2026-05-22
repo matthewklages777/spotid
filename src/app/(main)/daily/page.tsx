@@ -70,6 +70,7 @@ export default function DailyPage() {
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [streak, setStreak] = useState(0);
+  const [isPremium, setIsPremium] = useState(false);
   const [trendingTags, setTrendingTags] = useState<string[]>([]);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,6 +99,7 @@ export default function DailyPage() {
     if (uid) {
       fetch(`/api/profile?userId=${uid}`).then((r) => r.json()).then((p) => {
         if (typeof p.streak === "number") setStreak(p.streak);
+        if (typeof p.isPremium === "boolean") setIsPremium(p.isPremium);
       }).catch(() => {});
     }
   }, [status]);
@@ -387,6 +389,20 @@ export default function DailyPage() {
             </span>
           )}
         </div>
+
+        {/* Premium upsell — shown after saving for non-premium users */}
+        {saved && !isPremium && (
+          <Link href="/upgrade"
+            className="flex items-center gap-3 mt-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl px-4 py-3 hover:border-indigo-300 transition group"
+          >
+            <span className="text-xl flex-shrink-0">👁️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-indigo-900">See who finds you today</p>
+              <p className="text-xs text-gray-500">Upgrade to Premium to see exactly who views your profile</p>
+            </div>
+            <span className="text-xs font-bold text-indigo-600 group-hover:underline whitespace-nowrap">$4.99/mo →</span>
+          </Link>
+        )}
       </div>
 
       {/* Live preview */}
