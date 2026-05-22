@@ -32,6 +32,11 @@ model User {
   emailFollowers      Boolean   @default(true)
   emailVerified       Boolean   @default(false)
   banned              Boolean   @default(false)
+  isPremium           Boolean   @default(false)
+  premiumSince        DateTime?
+  stripeCustomerId    String?
+  stripeSubId         String?
+  browseAnonymously   Boolean   @default(false)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -45,6 +50,8 @@ model User {
   followers              Follow[]               @relation("UserFollowed")
   following              Follow[]               @relation("UserFollower")
   dailyProfileReactions  DailyProfileReaction[]
+  profileViewsReceived   ProfileView[]          @relation("ViewedUser")
+  profileViewsGiven      ProfileView[]          @relation("ViewerUser")
 }
 
 model Account {
@@ -277,4 +284,18 @@ model DailyProfileReaction {
   dailyProfile   DailyProfile @relation(fields: [dailyProfileId], references: [id], onDelete: Cascade)
 
   @@unique([userId, dailyProfileId])
+}
+
+// Tracks individual logged-in profile views for the "Who viewed me" feature.
+// Only recorded when the viewer is signed in and not browsing anonymously.
+model ProfileView {
+  id        String   @id @default(cuid())
+  viewedId  String
+  viewerId  String
+  createdAt DateTime @default(now())
+  viewed    User     @relation("ViewedUser", fields: [viewedId], references: [id], onDelete: Cascade)
+  viewer    User     @relation("ViewerUser", fields: [viewerId], references: [id], onDelete: Cascade)
+
+  @@index([viewedId, createdAt])
+  @@index([viewerId])
 }

@@ -266,6 +266,22 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Premium & Subscription */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-gray-900">Subscription</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Manage your SpotId Premium plan.</p>
+          </div>
+          <Link href="/upgrade" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition">
+            ✨ Upgrade
+          </Link>
+        </div>
+        <div className="px-6 py-5 text-sm text-gray-600">
+          <p>Get viewer identity, priority search placement, a verified badge, and more for <strong>$4.99/month</strong>.</p>
+        </div>
+      </div>
+
       {/* Privacy & Data */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100">

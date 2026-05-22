@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
       twitter: true,
       profileViews: true,
       openToContact: true,
+      isPremium: true,
       createdAt: true,
       profilePhotos: { orderBy: { createdAt: "desc" } },
       dailyProfiles: {

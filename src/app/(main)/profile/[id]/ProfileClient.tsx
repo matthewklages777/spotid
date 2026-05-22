@@ -28,6 +28,7 @@ interface UserProfile {
   website?: string; phone?: string; username?: string;
   instagram?: string; tiktok?: string; twitter?: string;
   profileViews: number; openToContact: boolean; createdAt: string;
+  isPremium?: boolean;
   profilePhotos: ProfilePhoto[];
   dailyProfiles: DailyProfile[];
   closetItems: ClosetItem[];
@@ -36,6 +37,12 @@ interface UserProfile {
   streak?: number;
   totalDays?: number;
   interestTags: { hashtag: { name: string } }[];
+}
+
+interface ViewerEntry {
+  id: string;
+  createdAt: string;
+  viewer: { id: string; name?: string; image?: string; username?: string; occupation?: string };
 }
 
 type Tab = "about" | "photos" | "closet" | "work";
@@ -66,6 +73,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
   const [saved, setSaved] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [viewStats, setViewStats] = useState<{ date: string; count: number }[]>([]);
+  const [viewers, setViewers] = useState<{ isPremium: boolean; count: number; viewers?: ViewerEntry[]; teaser?: { createdAt: string }[] } | null>(null);
   const [interestTagsEdit, setInterestTagsEdit] = useState<string[]>([]);
   const [savingInterests, setSavingInterests] = useState(false);
   const [following, setFollowing] = useState(false);
@@ -177,6 +185,9 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
     if (isOwn) {
       fetch("/api/profile/stats").then((r) => r.json()).then((d) => {
         if (Array.isArray(d)) setViewStats(d);
+      }).catch(() => {});
+      fetch("/api/premium/viewers").then((r) => r.json()).then((d) => {
+        if (d && typeof d.count === "number") setViewers(d);
       }).catch(() => {});
     }
   }, [isOwn]);
@@ -593,7 +604,12 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         )}
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-gray-900">{profile.name || "Anonymous"}</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl font-bold text-gray-900">{profile.name || "Anonymous"}</h1>
+            {profile.isPremium && (
+              <span title="SpotId Premium member" className="text-blue-500 text-lg" aria-label="Verified premium">✅</span>
+            )}
+          </div>
           {profile.username && (
             <p className="text-sm text-gray-400 font-medium">
               @{profile.username}
@@ -757,6 +773,67 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
             </div>
           );
         })()}
+
+        {/* Who Viewed Me — owner only */}
+        {isOwn && viewers && viewers.count > 0 && (
+          <div className="pt-4 mt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-gray-500 font-medium">
+                👁️ {viewers.count} view{viewers.count !== 1 ? "s" : ""} in the last 30 days
+              </p>
+              {!viewers.isPremium && (
+                <Link href="/upgrade" className="text-xs text-indigo-600 font-semibold hover:underline">
+                  See who →
+                </Link>
+              )}
+            </div>
+
+            {viewers.isPremium && viewers.viewers && viewers.viewers.length > 0 ? (
+              <div className="space-y-2">
+                {viewers.viewers.slice(0, 5).map((v) => (
+                  <Link
+                    key={v.id}
+                    href={`/profile/${v.viewer.id}`}
+                    className="flex items-center gap-2.5 hover:bg-gray-50 rounded-xl px-2 py-1.5 transition group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 flex-shrink-0 overflow-hidden">
+                      {v.viewer.image
+                        ? <img src={v.viewer.image} alt={v.viewer.name} className="w-full h-full object-cover" />
+                        : (v.viewer.name?.[0] ?? "?").toUpperCase()
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{v.viewer.name || "Anonymous"}</p>
+                      {v.viewer.occupation && <p className="text-xs text-gray-400 truncate">{v.viewer.occupation}</p>}
+                    </div>
+                    <p className="text-xs text-gray-400 flex-shrink-0">
+                      {new Date(v.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </Link>
+                ))}
+                {viewers.viewers.length > 5 && (
+                  <p className="text-xs text-gray-400 text-center pt-1">+{viewers.viewers.length - 5} more this month</p>
+                )}
+              </div>
+            ) : !viewers.isPremium ? (
+              <Link
+                href="/upgrade"
+                className="block bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-4 text-center hover:border-indigo-300 transition"
+              >
+                <div className="flex justify-center gap-2 mb-2">
+                  {(viewers.teaser || []).map((_, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-indigo-200 blur-sm" />
+                  ))}
+                  {viewers.count > 2 && (
+                    <div className="w-8 h-8 rounded-full bg-gray-200 blur-sm flex items-center justify-center" />
+                  )}
+                </div>
+                <p className="text-sm font-bold text-indigo-700">Unlock with Premium</p>
+                <p className="text-xs text-gray-500 mt-0.5">See exactly who viewed your profile this month</p>
+              </Link>
+            ) : null}
+          </div>
+        )}
 
         {/* View sparkline — owner only */}
         {isOwn && viewStats.length > 1 && (() => {

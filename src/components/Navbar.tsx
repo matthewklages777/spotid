@@ -186,6 +186,7 @@ function UserMenu({ session, userId, isAdmin }: {
             { href: "/saved", icon: "★", label: "Saved Profiles" },
             { href: "/following-tags", icon: "#️⃣", label: "Followed Tags" },
             { href: "/invite", icon: "🔗", label: "Invite Friends" },
+            { href: "/upgrade", icon: "✨", label: "Go Premium" },
             { href: "/settings", icon: "⚙️", label: "Settings" },
             { href: "/help", icon: "❓", label: "Help & FAQ" },
             ...(isAdmin ? [{ href: "/admin", icon: "🛡️", label: "Admin Panel" }] : []),
