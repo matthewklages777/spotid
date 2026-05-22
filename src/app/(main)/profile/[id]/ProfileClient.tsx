@@ -302,11 +302,21 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
     fd.append("file", file);
     const upRes = await fetch("/api/upload", { method: "POST", body: fd });
     const { url } = await upRes.json();
-    await fetch("/api/photos", {
+    const res = await fetch("/api/photos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
+    if (!res.ok) {
+      const data = await res.json();
+      if (data.upgradeRequired) {
+        if (confirm(`${data.error}\n\nGo to the upgrade page now?`)) {
+          window.location.href = "/upgrade";
+        }
+      } else {
+        alert(data.error || "Failed to save photo.");
+      }
+    }
     setUploadingPhoto(false);
     load();
   }
@@ -1347,7 +1357,17 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         {tab === "photos" && (
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Photos</h2>
+              <div>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Photos</h2>
+                {isOwn && (
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {profile.profilePhotos.length}/{profile.isPremium ? "∞" : "10"}
+                    {!profile.isPremium && profile.profilePhotos.length >= 10 && (
+                      <Link href="/upgrade" className="ml-1.5 text-indigo-500 hover:underline font-medium">Upgrade for unlimited →</Link>
+                    )}
+                  </p>
+                )}
+              </div>
               {isOwn && (
                 <>
                   <button onClick={() => fileRef.current?.click()} disabled={uploadingPhoto}

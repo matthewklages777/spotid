@@ -11,9 +11,17 @@ export async function POST(req: NextRequest) {
   const { url, caption } = await req.json();
   if (!url) return Response.json({ error: "url required" }, { status: 400 });
 
-  const count = await prisma.profilePhoto.count({ where: { userId } });
-  if (count >= 20) {
-    return Response.json({ error: "Maximum 20 photos allowed. Please remove some before adding more." }, { status: 400 });
+  const [count, user] = await Promise.all([
+    prisma.profilePhoto.count({ where: { userId } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { isPremium: true } }),
+  ]);
+
+  const limit = user?.isPremium ? 500 : 10;
+  if (count >= limit) {
+    const msg = user?.isPremium
+      ? "Maximum 500 photos allowed."
+      : "Free accounts are limited to 10 photos. Upgrade to Premium for unlimited photos.";
+    return Response.json({ error: msg, upgradeRequired: !user?.isPremium }, { status: 400 });
   }
 
   const photo = await prisma.profilePhoto.create({ data: { url, caption, userId } });
