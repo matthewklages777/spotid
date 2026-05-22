@@ -24,7 +24,7 @@ export async function GET() {
     take: 30, // Fetch extra so we have enough after filtering low-streak users
   });
 
-  const userIds = recentActiveUsers.map((r) => r.userId);
+  const userIds = recentActiveUsers.map((r: { userId: string; _count: { userId: number } }) => r.userId);
 
   // Single batched query for all dates across all candidate users
   const [users, allDailyDates] = await Promise.all([
