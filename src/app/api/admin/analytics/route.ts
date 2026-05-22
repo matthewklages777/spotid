@@ -95,7 +95,7 @@ export async function GET() {
     where: { id: { in: topTagRows.map((r: { hashtagId: string; _count: { hashtagId: number } }) => r.hashtagId) } },
     select: { id: true, name: true },
   });
-  const tagNameMap = Object.fromEntries(tagNames.map((t) => [t.id, t.name]));
+  const tagNameMap = Object.fromEntries(tagNames.map((t: { id: string; name: string }) => [t.id, t.name]));
   const topTags = topTagRows.map((r: { hashtagId: string; _count: { hashtagId: number } }) => ({
     name: tagNameMap[r.hashtagId] ?? "?",
     count: r._count.hashtagId,
