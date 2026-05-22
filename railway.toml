@@ -9,3 +9,5 @@ preDeployCommand = "npx prisma migrate deploy"
 startCommand = "npm start"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
