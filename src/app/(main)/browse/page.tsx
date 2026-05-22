@@ -6,7 +6,7 @@ import Link from "next/link";
 type BrowseType = "closet" | "work";
 
 interface Hashtag { id: string; name: string }
-interface UserSnippet { id: string; name?: string; image?: string; username?: string }
+interface UserSnippet { id: string; name?: string; image?: string; username?: string; isPremium?: boolean }
 
 interface ClosetItem {
   id: string; title: string; description?: string; price?: number; image?: string; createdAt: string;
@@ -213,7 +213,7 @@ function BrowseContent() {
                           : (item.user.name?.[0] ?? "?").toUpperCase()
                         }
                       </div>
-                      <p className="text-xs text-gray-400 truncate">{item.user.name || "Anonymous"}</p>
+                      <p className="text-xs text-gray-400 truncate">{item.user.name || "Anonymous"}{item.user.isPremium && <span className="ml-0.5">✅</span>}</p>
                     </div>
                     {item.hashtags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
@@ -280,7 +280,7 @@ function BrowseContent() {
                             : (item.user.name?.[0] ?? "?").toUpperCase()
                           }
                         </div>
-                        <p className="text-xs text-gray-500">{item.user.name || "Anonymous"}</p>
+                        <p className="text-xs text-gray-500">{item.user.name || "Anonymous"}{item.user.isPremium && <span className="ml-0.5">✅</span>}</p>
                       </div>
                       {item.hashtags.slice(0, 3).map(({ hashtag }) => (
                         <span key={hashtag.id} className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">

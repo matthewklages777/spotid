@@ -19,6 +19,7 @@ function HomeContent() {
   const [taggedToday, setTaggedToday] = useState<boolean | null>(null);
   const [profileIncomplete, setProfileIncomplete] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [isPremium, setIsPremium] = useState(false);
   const [feedPreview, setFeedPreview] = useState<FeedPreviewEntry[]>([]);
   const [suggestions, setSuggestions] = useState<{ name: string; count: number }[]>([]);
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -46,6 +47,7 @@ function HomeContent() {
       const isEmpty = !p.bio && !p.image && !p.occupation && !p.username;
       setProfileIncomplete(isEmpty);
       setStreak(p.streak ?? 0);
+      setIsPremium(!!p.isPremium);
     }).catch(() => {});
     fetch("/api/feed").then((r) => r.json()).then((d) => {
       const entries = [...(d.dailyFromFollowed || []), ...(d.dailyFromTags || [])]
@@ -432,6 +434,21 @@ function HomeContent() {
               </div>
             </div>
           </div>
+
+          {/* Premium upsell — only show for non-premium users who have been around (streak > 0) */}
+          {!isPremium && streak >= 1 && (
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-5 flex items-center gap-4">
+              <div className="text-3xl flex-shrink-0">✨</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-gray-900 text-sm">See who&apos;s viewing your profile</p>
+                <p className="text-xs text-gray-500 mt-0.5">Upgrade to Premium for viewer identity, 90-day analytics, and priority search placement.</p>
+              </div>
+              <Link href="/upgrade"
+                className="flex-shrink-0 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-indigo-700 transition">
+                $4.99/mo →
+              </Link>
+            </div>
+          )}
 
           {/* Feed preview */}
           {feedPreview.length > 0 && (
