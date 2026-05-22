@@ -9,7 +9,7 @@ interface DailyProfileResult {
   hashtags: { hashtag: { id: string; name: string } }[];
 }
 interface User {
-  id: string; name?: string; image?: string; bio?: string; location?: string; occupation?: string; username?: string;
+  id: string; name?: string; image?: string; bio?: string; location?: string; occupation?: string; username?: string; isPremium?: boolean;
   dailyProfiles: DailyProfileResult[];
 }
 type Profile = Omit<User, "dailyProfiles"> & {
@@ -322,7 +322,9 @@ function SearchContent() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-semibold text-gray-900">{u.name || "Anonymous"}</p>
+                        <p className="font-semibold text-gray-900 flex items-center gap-1">
+                          {u.name || "Anonymous"}{u.isPremium && <span title="Premium" className="text-blue-500 text-sm">✅</span>}
+                        </p>
                         {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
                         {u.occupation && <p className="text-sm text-indigo-600">{u.occupation}</p>}
                         {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}
@@ -389,7 +391,9 @@ function SearchContent() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900">{u.name || "Anonymous"}</p>
+                        <p className="font-semibold text-gray-900 flex items-center gap-1">
+                          {u.name || "Anonymous"}{u.isPremium && <span title="Premium" className="text-blue-500 text-sm">✅</span>}
+                        </p>
                         {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
                         {u.occupation && <p className="text-sm text-indigo-600">{u.occupation}</p>}
                         {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}

@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
             location: true,
             occupation: true,
             username: true,
+            isPremium: true,
             dailyProfiles: {
               where: { date: today },
               include: { hashtags: { include: { hashtag: true } } },
@@ -122,6 +123,7 @@ export async function GET(req: NextRequest) {
             location: true,
             occupation: true,
             username: true,
+            isPremium: true,
             dailyProfiles: {
               where: { date: today },
               take: 1,
@@ -173,5 +175,14 @@ export async function GET(req: NextRequest) {
       : Promise.resolve([]),
   ]);
 
-  return Response.json({ users, profiles, closet, work });
+  // Sort premium users to the front of each people list
+  const sortPremiumFirst = <T extends { isPremium?: boolean }>(arr: T[]) =>
+    [...arr].sort((a, b) => (b.isPremium ? 1 : 0) - (a.isPremium ? 1 : 0));
+
+  return Response.json({
+    users: sortPremiumFirst(users),
+    profiles: sortPremiumFirst(profiles),
+    closet,
+    work,
+  });
 }

@@ -30,6 +30,11 @@ export default function SettingsPage() {
   const [emailFollowers, setEmailFollowers] = useState(true);
   const [savingNotifPrefs, setSavingNotifPrefs] = useState(false);
   const [notifPrefsSaved, setNotifPrefsSaved] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [browseAnon, setBrowseAnon] = useState(false);
+  const [savingAnon, setSavingAnon] = useState(false);
+
+  const userId = (session?.user as { id?: string })?.id;
 
   useEffect(() => {
     if (!session) return;
@@ -42,7 +47,24 @@ export default function SettingsPage() {
       if (typeof d.emailDigest === "boolean") setEmailDigest(d.emailDigest);
       if (typeof d.emailFollowers === "boolean") setEmailFollowers(d.emailFollowers);
     }).catch(() => {});
-  }, [session]);
+    if (userId) {
+      fetch(`/api/profile?userId=${userId}`).then((r) => r.json()).then((d) => {
+        if (typeof d.isPremium === "boolean") setIsPremium(d.isPremium);
+        if (typeof d.browseAnonymously === "boolean") setBrowseAnon(d.browseAnonymously);
+      }).catch(() => {});
+    }
+  }, [session, userId]);
+
+  async function toggleBrowseAnon(val: boolean) {
+    setSavingAnon(true);
+    setBrowseAnon(val);
+    await fetch("/api/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ browseAnonymously: val }),
+    }).catch(() => {});
+    setSavingAnon(false);
+  }
 
   async function unblock(blockedId: string) {
     setUnblocking(blockedId);
@@ -288,18 +310,50 @@ export default function SettingsPage() {
           <h2 className="font-bold text-gray-900">Privacy &amp; Data</h2>
           <p className="text-sm text-gray-500 mt-0.5">Download a copy of all data SpotId holds about you.</p>
         </div>
-        <div className="px-6 py-5 space-y-3">
-          <p className="text-sm text-gray-600 leading-relaxed">
-            Your export includes your profile, daily history, closet &amp; work listings, messages, social graph,
-            followed hashtags, and notification history — as a single JSON file.
-          </p>
-          <a
-            href="/api/user/export"
-            download
-            className="inline-flex items-center gap-2 text-sm bg-gray-800 text-white px-5 py-2 rounded-xl hover:bg-gray-900 transition font-semibold"
-          >
-            <span>⬇</span> Download My Data
-          </a>
+        <div className="px-6 py-5 space-y-5">
+          {/* Browse Anonymously — premium only */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                🕶️ Browse Anonymously
+                {!isPremium && (
+                  <Link href="/upgrade" className="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-semibold hover:bg-indigo-200 transition">
+                    Premium
+                  </Link>
+                )}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {isPremium
+                  ? "When enabled, you won't appear in other people's viewer lists."
+                  : "Upgrade to Premium to browse profiles without being seen."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => isPremium && toggleBrowseAnon(!browseAnon)}
+              disabled={!isPremium || savingAnon}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
+                !isPremium ? "opacity-40 cursor-not-allowed bg-gray-200" :
+                browseAnon ? "bg-indigo-600" : "bg-gray-200"
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${browseAnon ? "translate-x-6" : "translate-x-1"}`} />
+            </button>
+          </div>
+
+          <div className="border-t border-gray-100 pt-4">
+            <p className="text-sm text-gray-600 leading-relaxed mb-3">
+              Your export includes your profile, daily history, closet &amp; work listings, messages, social graph,
+              followed hashtags, and notification history — as a single JSON file.
+            </p>
+            <a
+              href="/api/user/export"
+              download
+              className="inline-flex items-center gap-2 text-sm bg-gray-800 text-white px-5 py-2 rounded-xl hover:bg-gray-900 transition font-semibold"
+            >
+              <span>⬇</span> Download My Data
+            </a>
+          </div>
         </div>
       </div>
 

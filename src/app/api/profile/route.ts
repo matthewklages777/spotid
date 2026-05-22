@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
       profileViews: true,
       openToContact: true,
       isPremium: true,
+      browseAnonymously: true,
       createdAt: true,
       profilePhotos: { orderBy: { createdAt: "desc" } },
       dailyProfiles: {
@@ -90,7 +91,7 @@ export async function PUT(req: NextRequest) {
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const userId = (session.user as { id?: string })?.id;
   const body = await req.json();
-  const { name, bio, location, occupation, website, phone, username, coverImage, image, onboardingComplete, openToContact, instagram, tiktok, twitter } = body;
+  const { name, bio, location, occupation, website, phone, username, coverImage, image, onboardingComplete, openToContact, instagram, tiktok, twitter, browseAnonymously } = body;
 
   if (name !== undefined && (typeof name !== "string" || name.length > 100)) {
     return Response.json({ error: "Name must be under 100 characters" }, { status: 400 });
@@ -119,6 +120,7 @@ export async function PUT(req: NextRequest) {
   if (image !== undefined) data.image = image;
   if (onboardingComplete !== undefined) data.onboardingComplete = onboardingComplete;
   if (openToContact !== undefined) data.openToContact = openToContact;
+  if (browseAnonymously !== undefined) data.browseAnonymously = browseAnonymously;
   if (username !== undefined) data.username = username || null;
   if (instagram !== undefined) data.instagram = instagram ? instagram.replace(/^@/, "").slice(0, 50) : null;
   if (tiktok !== undefined) data.tiktok = tiktok ? tiktok.replace(/^@/, "").slice(0, 50) : null;
