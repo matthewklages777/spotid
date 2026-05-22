@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         hashtags: { include: { hashtag: true } },
-        user: { select: { id: true, name: true, image: true, username: true } },
+        user: { select: { id: true, name: true, image: true, username: true, isPremium: true } },
       },
       orderBy: { createdAt: "desc" },
       skip,

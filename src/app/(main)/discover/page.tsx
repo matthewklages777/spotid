@@ -9,6 +9,7 @@ interface DailyProfile { image?: string; hashtags: { hashtag: Hashtag }[] }
 interface ActiveUser {
   id: string; name?: string; image?: string;
   location?: string; occupation?: string; username?: string;
+  isPremium?: boolean;
   dailyProfiles: DailyProfile[];
 }
 interface ClosetItem {
@@ -61,7 +62,9 @@ function UserRow({ u, myId }: { u: ActiveUser; myId?: string }) {
       <div className="flex items-start gap-4 px-5 py-3.5">
         <Avatar image={u.image} name={u.name} />
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-900 text-sm">{u.name || "Anonymous"}</p>
+          <p className="font-semibold text-gray-900 text-sm">
+            {u.name || "Anonymous"}{u.isPremium && <span className="ml-1 text-xs">✅</span>}
+          </p>
           {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
           {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}
           {u.location && <p className="text-xs text-gray-400">📍 {u.location}</p>}

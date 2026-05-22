@@ -4,6 +4,7 @@ import Link from "next/link";
 
 interface LeaderUser {
   id: string; name?: string; image?: string; occupation?: string; username?: string;
+  isPremium?: boolean;
   followerCount?: number;
   streak?: number;
   totalDays?: number;
@@ -38,7 +39,9 @@ function LeaderRow({ u, rank, badge }: { u: LeaderUser; rank: number; badge: Rea
         </span>
         <Avatar u={u} />
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-900 text-sm truncate">{u.name || "Anonymous"}</p>
+          <p className="font-semibold text-gray-900 text-sm truncate">
+            {u.name || "Anonymous"}{u.isPremium && <span className="ml-1 text-xs">✅</span>}
+          </p>
           {u.occupation && <p className="text-xs text-indigo-600 truncate">{u.occupation}</p>}
           {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
         </div>

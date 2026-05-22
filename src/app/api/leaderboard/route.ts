@@ -8,7 +8,7 @@ export async function GET() {
   const topByFollowers = await prisma.user.findMany({
     where: { followers: { some: {} } },
     select: {
-      id: true, name: true, image: true, occupation: true, username: true,
+      id: true, name: true, image: true, occupation: true, username: true, isPremium: true,
       _count: { select: { followers: true } },
     },
     orderBy: { followers: { _count: "desc" } },
@@ -30,7 +30,7 @@ export async function GET() {
   const [users, allDailyDates] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: userIds } },
-      select: { id: true, name: true, image: true, occupation: true, username: true },
+      select: { id: true, name: true, image: true, occupation: true, username: true, isPremium: true },
     }),
     prisma.dailyProfile.findMany({
       where: { userId: { in: userIds } },
@@ -69,7 +69,7 @@ export async function GET() {
   const activeToday = await prisma.user.findMany({
     where: { dailyProfiles: { some: { date: today, hashtags: { some: {} } } } },
     select: {
-      id: true, name: true, image: true, occupation: true, username: true,
+      id: true, name: true, image: true, occupation: true, username: true, isPremium: true,
       dailyProfiles: {
         where: { date: today },
         include: { hashtags: { include: { hashtag: true } } },

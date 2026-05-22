@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface Hashtag { id: string; name: string }
-interface UserSnippet { id: string; name?: string; image?: string; username?: string; occupation?: string }
+interface UserSnippet { id: string; name?: string; image?: string; username?: string; occupation?: string; isPremium?: boolean }
 
 interface DailyEntry {
   id: string;
@@ -106,7 +106,7 @@ function DailyCard({ entry, isTagFeed, myId }: { entry: DailyEntry; isTagFeed?: 
           <div className="flex items-start justify-between gap-2">
             <div>
               <Link href={`/profile/${entry.user.id}`} className="font-semibold text-gray-900 text-sm hover:text-indigo-600 transition">
-                {entry.user.name || "Anonymous"}
+                {entry.user.name || "Anonymous"}{entry.user.isPremium && <span className="ml-1 text-xs">✅</span>}
               </Link>
               {entry.user.username && (
                 <span className="text-xs text-gray-400 ml-1.5">@{entry.user.username}</span>

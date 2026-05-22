@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         },
         include: {
           hashtags: { include: { hashtag: true } },
-          user: { select: { id: true, name: true, image: true, username: true, occupation: true } },
+          user: { select: { id: true, name: true, image: true, username: true, occupation: true, isPremium: true } },
         },
         orderBy: { updatedAt: "desc" },
         take: 10,
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
         },
         include: {
           hashtags: { include: { hashtag: true } },
-          user: { select: { id: true, name: true, image: true, username: true, occupation: true } },
+          user: { select: { id: true, name: true, image: true, username: true, occupation: true, isPremium: true } },
         },
         orderBy: { updatedAt: "desc" },
         take: 10,

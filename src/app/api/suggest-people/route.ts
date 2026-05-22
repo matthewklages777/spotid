@@ -49,7 +49,7 @@ export async function GET() {
       user: {
         select: {
           id: true, name: true, image: true, occupation: true, location: true, username: true,
-          openToContact: true,
+          openToContact: true, isPremium: true,
         },
       },
     },
