@@ -7,7 +7,7 @@ import Link from "next/link";
 interface Hashtag { id: string; name: string }
 interface Provider {
   id: string; name?: string; image?: string; username?: string;
-  location?: string; openToContact: boolean;
+  location?: string; openToContact: boolean; isPremium?: boolean;
 }
 interface WorkItem {
   id: string; title: string; description?: string; category?: string;
@@ -303,7 +303,7 @@ export default function WorkItemPage() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-400 mb-0.5">Offered by</p>
-          <p className="font-bold text-gray-900">{provider.name || "Anonymous"}</p>
+          <p className="font-bold text-gray-900">{provider.name || "Anonymous"}{provider.isPremium && <span className="ml-1 text-xs">✅</span>}</p>
           {provider.username && <p className="text-xs text-gray-400">@{provider.username}</p>}
           {provider.location && <p className="text-xs text-gray-400">📍 {provider.location}</p>}
         </div>

@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     where: { id },
     include: {
       hashtags: { include: { hashtag: true } },
-      user: { select: { id: true, name: true, image: true, username: true, location: true, openToContact: true } },
+      user: { select: { id: true, name: true, image: true, username: true, location: true, openToContact: true, isPremium: true } },
     },
   });
   if (!item) return Response.json({ error: "Not found" }, { status: 404 });

@@ -7,7 +7,7 @@ import Link from "next/link";
 interface Hashtag { id: string; name: string }
 interface Seller {
   id: string; name?: string; image?: string; username?: string;
-  location?: string; openToContact: boolean;
+  location?: string; openToContact: boolean; isPremium?: boolean;
 }
 interface ClosetItem {
   id: string; title: string; description?: string; price?: number;
@@ -312,7 +312,7 @@ export default function ClosetItemPage() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-400 mb-0.5">Sold by</p>
-          <p className="font-bold text-gray-900">{seller.name || "Anonymous"}</p>
+          <p className="font-bold text-gray-900">{seller.name || "Anonymous"}{seller.isPremium && <span className="ml-1 text-xs">✅</span>}</p>
           {seller.username && <p className="text-xs text-gray-400">@{seller.username}</p>}
           {seller.location && <p className="text-xs text-gray-400">📍 {seller.location}</p>}
         </div>

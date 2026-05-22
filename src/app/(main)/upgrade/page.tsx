@@ -55,6 +55,7 @@ function UpgradeContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [polling, setPolling] = useState(false);
   const userId = (session?.user as { id?: string })?.id;
 
   const success = params.get("success") === "1";
@@ -62,11 +63,29 @@ function UpgradeContent() {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`/api/profile?userId=${userId}`)
-      .then((r) => r.json())
-      .then((d) => { if (d.isPremium) setIsPremium(true); })
-      .catch(() => {});
-  }, [userId]);
+
+    async function checkPremium(): Promise<boolean> {
+      const res = await fetch(`/api/profile?userId=${userId}`).catch(() => null);
+      if (!res?.ok) return false;
+      const d = await res.json().catch(() => ({}));
+      return !!d.isPremium;
+    }
+
+    if (success) {
+      // Poll up to 8 times (every 1.5s = 12s total) waiting for webhook to fire
+      setPolling(true);
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts++;
+        const premium = await checkPremium();
+        if (premium) { setIsPremium(true); setPolling(false); clearInterval(interval); return; }
+        if (attempts >= 8) { setPolling(false); clearInterval(interval); }
+      }, 1500);
+      return () => clearInterval(interval);
+    } else {
+      checkPremium().then((p) => { if (p) setIsPremium(true); });
+    }
+  }, [userId, success]);
 
   async function handleUpgrade() {
     if (!session) { router.push("/signin?next=/upgrade"); return; }
@@ -102,7 +121,11 @@ function UpgradeContent() {
         <div className="bg-green-50 border border-green-200 rounded-2xl px-6 py-4 text-center">
           <p className="text-2xl mb-1">🎉</p>
           <p className="font-bold text-green-800">Welcome to SpotId Premium!</p>
-          <p className="text-sm text-green-700 mt-1">Your account is now upgraded. All premium features are live.</p>
+          {polling ? (
+            <p className="text-sm text-green-600 mt-1 animate-pulse">Activating your account…</p>
+          ) : (
+            <p className="text-sm text-green-700 mt-1">Your account is now upgraded. All premium features are live.</p>
+          )}
         </div>
       )}
       {cancelled && (
