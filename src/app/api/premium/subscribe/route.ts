@@ -2,10 +2,11 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import Stripe from "stripe";
 
 // POST /api/premium/subscribe
 // Creates a Stripe Checkout session and returns the URL.
-// Requires STRIPE_SECRET_KEY and STRIPE_PRICE_ID to be set.
+// Requires STRIPE_SECRET_KEY and STRIPE_PRICE_ID to be set in env.
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,16 +20,6 @@ export async function POST(req: NextRequest) {
 
   if (!stripeKey || !priceId) {
     return Response.json({ error: "Stripe not configured" }, { status: 503 });
-  }
-
-  // Dynamically import stripe to avoid build errors when not installed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let Stripe: any;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Stripe = ((await import("stripe" as any)) as any).default;
-  } catch {
-    return Response.json({ error: "Stripe not installed" }, { status: 503 });
   }
 
   const stripe = new Stripe(stripeKey);
