@@ -12,14 +12,16 @@ export async function GET() {
   });
 
   // Attach reporter and reported names
-  const userIds = [...new Set([...reports.map((r) => r.reporterId), ...reports.map((r) => r.reportedId)])];
+  type ReportRow = { id: string; reporterId: string; reportedId: string; reason: string; details: string | null; createdAt: Date };
+  type UserRow = { id: string; name: string | null; email: string };
+  const userIds = [...new Set([...reports.map((r: ReportRow) => r.reporterId), ...reports.map((r: ReportRow) => r.reportedId)])];
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
     select: { id: true, name: true, email: true },
   });
-  const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
+  const userMap = Object.fromEntries(users.map((u: UserRow) => [u.id, u]));
 
-  const enriched = reports.map((r) => ({
+  const enriched = reports.map((r: ReportRow) => ({
     ...r,
     reporter: userMap[r.reporterId],
     reported: userMap[r.reportedId],
