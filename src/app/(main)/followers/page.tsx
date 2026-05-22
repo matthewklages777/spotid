@@ -7,7 +7,7 @@ import { Suspense } from "react";
 
 interface Person {
   id: string; name?: string; image?: string; bio?: string;
-  occupation?: string; username?: string;
+  occupation?: string; username?: string; isPremium?: boolean;
   activeToday: boolean; since: string;
 }
 
@@ -29,7 +29,7 @@ function PersonRow({ p }: { p: Person }) {
         <Avatar p={p} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-gray-900 text-sm">{p.name || "Anonymous"}</p>
+            <p className="font-semibold text-gray-900 text-sm">{p.name || "Anonymous"}{p.isPremium && <span className="ml-1 text-xs">✅</span>}</p>
             {p.activeToday && (
               <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
                 Active today

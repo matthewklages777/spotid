@@ -18,7 +18,7 @@ export async function GET() {
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
     select: {
-      id: true, name: true, image: true, bio: true, location: true, occupation: true, username: true,
+      id: true, name: true, image: true, bio: true, location: true, occupation: true, username: true, isPremium: true,
       dailyProfiles: {
         where: { date: new Date().toISOString().split("T")[0] },
         take: 1,

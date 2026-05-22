@@ -7,6 +7,7 @@ import Link from "next/link";
 interface SavedUser {
   id: string; name?: string; image?: string; bio?: string;
   location?: string; occupation?: string; username?: string;
+  isPremium?: boolean;
   dailyProfiles: { id: string }[];
 }
 
@@ -52,7 +53,7 @@ function SavedItem({ item, onUnsave }: {
         <div className="flex items-start justify-between gap-2">
           <div>
             <Link href={`/profile/${u.id}`} className="font-semibold text-gray-900 hover:text-indigo-600 text-sm">
-              {u.name || "Unknown"}
+              {u.name || "Unknown"}{u.isPremium && <span className="ml-1 text-xs">✅</span>}
             </Link>
             {u.username && <p className="text-xs text-gray-400">@{u.username}</p>}
             {u.occupation && <p className="text-xs text-indigo-600">{u.occupation}</p>}

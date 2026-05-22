@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       include: {
         followed: {
           select: {
-            id: true, name: true, image: true, bio: true, occupation: true, username: true,
+            id: true, name: true, image: true, bio: true, occupation: true, username: true, isPremium: true,
             dailyProfiles: { where: { date: today }, take: 1, select: { id: true } },
           },
         },
