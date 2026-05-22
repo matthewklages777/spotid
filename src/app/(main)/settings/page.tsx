@@ -351,7 +351,19 @@ export default function SettingsPage() {
                 <p className="text-xs text-indigo-600 mt-0.5">$4.99/month · All premium features enabled</p>
               </div>
             </div>
-            <CancelSubscriptionButton />
+            <div className="flex items-center gap-3 flex-wrap">
+              <CancelSubscriptionButton />
+              <button
+                onClick={async () => {
+                  const res = await fetch("/api/premium/portal", { method: "POST" });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                }}
+                className="text-sm text-indigo-600 hover:underline transition"
+              >
+                Manage billing →
+              </button>
+            </div>
           </div>
         ) : (
           <div className="px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
