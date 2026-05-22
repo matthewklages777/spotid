@@ -4,8 +4,8 @@ import { prisma } from "@/lib/prisma";
 // Returns 200 when the app is up and the database is reachable.
 export async function GET() {
   try {
-    // A minimal query that proves the DB connection is alive
-    await prisma.$queryRaw`SELECT 1`;
+    // Simple count query — works with all Prisma adapters including libsql
+    await prisma.user.count();
     return Response.json({ status: "ok", db: "ok" });
   } catch {
     return Response.json({ status: "error", db: "unreachable" }, { status: 503 });
