@@ -245,6 +245,71 @@ export function premiumWelcomeEmail(name: string, profileUrl: string, settingsUr
   };
 }
 
+export function premiumStatsEmail(
+  name: string,
+  stats: { viewsThisWeek: number; viewsAllTime: number; streak: number; totalDays: number },
+  topViewers: { name: string; profileUrl: string }[],
+  profileUrl: string,
+  settingsUrl: string,
+): EmailTemplate {
+  const subject = stats.viewsThisWeek > 0
+    ? `📊 Your SpotId stats: ${stats.viewsThisWeek} views this week`
+    : `📊 Your SpotId weekly stats`;
+
+  const viewerRows = topViewers.length > 0
+    ? topViewers.map((v) => `<li><a href="${v.profileUrl}" style="color:#4f46e5;text-decoration:none">${v.name}</a></li>`).join("")
+    : "<li>No signed-in views this week</li>";
+
+  return {
+    subject,
+    html: `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">
+        <h2 style="color:#4f46e5">SpotId Premium · Weekly Stats ✅</h2>
+        <p>Hi ${name || "there"},</p>
+        <p>Here's how your profile did this week:</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <tr>
+            <td style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center">
+              <p style="font-size:28px;font-weight:900;color:#4f46e5;margin:0">${stats.viewsThisWeek}</p>
+              <p style="font-size:12px;color:#6b7280;margin:4px 0 0">views this week</p>
+            </td>
+            <td style="width:12px"></td>
+            <td style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center">
+              <p style="font-size:28px;font-weight:900;color:#f97316;margin:0">🔥 ${stats.streak}</p>
+              <p style="font-size:12px;color:#6b7280;margin:4px 0 0">day streak</p>
+            </td>
+            <td style="width:12px"></td>
+            <td style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center">
+              <p style="font-size:28px;font-weight:900;color:#374151;margin:0">${stats.viewsAllTime.toLocaleString()}</p>
+              <p style="font-size:12px;color:#6b7280;margin:4px 0 0">total views</p>
+            </td>
+          </tr>
+        </table>
+        ${topViewers.length > 0 ? `
+        <div style="margin:20px 0">
+          <p style="font-weight:700;color:#374151;margin-bottom:8px">Recent visitors (Premium exclusive):</p>
+          <ul style="margin:0;padding-left:20px;color:#374151;line-height:1.8">
+            ${viewerRows}
+          </ul>
+        </div>
+        ` : ""}
+        <p style="margin:24px 0">
+          <a href="${profileUrl}" style="background:#4f46e5;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">
+            View My Profile
+          </a>
+        </p>
+        <p style="color:#6b7280;font-size:13px">
+          Tag daily to grow your reach. You can manage your subscription at
+          <a href="${settingsUrl}" style="color:#4f46e5">Settings</a>.
+        </p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
+        <p style="color:#9ca3af;font-size:12px">SpotId Premium · Tag yourself. Get spotted.</p>
+      </div>
+    `,
+    text: `Your SpotId weekly stats:\n\n${stats.viewsThisWeek} views this week · 🔥 ${stats.streak} day streak · ${stats.viewsAllTime} total views\n\nView your profile: ${profileUrl}`,
+  };
+}
+
 export function newMessageEmail(senderName: string, preview: string, inboxUrl: string): EmailTemplate {
   return {
     subject: `New message from ${senderName} on SpotId`,

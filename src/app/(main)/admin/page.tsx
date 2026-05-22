@@ -436,6 +436,7 @@ export default function AdminPage() {
         <div className="flex flex-wrap gap-3">
           <CronButton label="🔥 Streak Reminders" endpoint="/api/cron/streak-reminder" />
           <CronButton label="📰 Weekly Digest" endpoint="/api/cron/digest" />
+          <CronButton label="✅ Premium Stats" endpoint="/api/cron/premium-stats" />
         </div>
       </div>
 
