@@ -21,8 +21,15 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
+// Lazy singleton — only connects when first used, not at import time
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_, prop) {
+    if (!globalForPrisma.prisma) {
+      globalForPrisma.prisma = createPrismaClient();
+    }
+    const value = (globalForPrisma.prisma as unknown as Record<string | symbol, unknown>)[prop];
+    return typeof value === "function" ? value.bind(globalForPrisma.prisma) : value;
+  },
+});
