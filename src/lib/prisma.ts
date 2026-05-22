@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
 import path from "path";
 
 function resolveDbUrl(): string {
@@ -14,7 +15,9 @@ function resolveDbUrl(): string {
 }
 
 function createPrismaClient() {
-  const adapter = new PrismaLibSql({ url: resolveDbUrl() });
+  const client = createClient({ url: resolveDbUrl() });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const adapter = new PrismaLibSql(client as any);
   return new PrismaClient({ adapter });
 }
 
