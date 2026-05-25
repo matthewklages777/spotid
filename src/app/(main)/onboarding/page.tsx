@@ -73,6 +73,47 @@ const STEPS = [
     ),
   },
   {
+    icon: "🏷️",
+    title: "Tag Your First Day",
+    subtitle: "This is how SpotId works — and how people find you.",
+    color: "from-green-500 to-teal-600",
+    content: (
+      <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+        <p>
+          Every day you can publish a <strong className="text-gray-900">Daily Profile</strong> —
+          a set of hashtags that describe where you are, what you&apos;re wearing, what you&apos;re doing, or anything about your day.
+        </p>
+        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 space-y-2">
+          <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">Example Daily Profile</p>
+          <div className="flex flex-wrap gap-1.5">
+            {["Plano", "Starbucks", "bluejeans", "whiteshirt", "laptop", "available"].map((t) => (
+              <span key={t} className="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-full font-medium">#{t}</span>
+            ))}
+          </div>
+          <p className="text-xs text-indigo-600">Anyone searching any of these tags today finds your profile.</p>
+        </div>
+        <div className="space-y-2">
+          {[
+            { icon: "📍", text: "Where you are — city, neighborhood, or specific venue" },
+            { icon: "👕", text: "What you look like — colors, clothing, accessories" },
+            { icon: "🗓️", text: "What you're doing — meeting, shopping, working out" },
+            { icon: "🤝", text: "Whether you're open to meeting people" },
+          ].map((item) => (
+            <div key={item.icon} className="flex items-center gap-2.5 text-xs text-gray-600">
+              <span className="text-base">{item.icon}</span>
+              <span>{item.text}</span>
+            </div>
+          ))}
+        </div>
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+          <p className="text-xs text-green-800 font-medium">
+            ✓ After this step, you&apos;ll go straight to your Daily Profile to publish your first tags.
+          </p>
+        </div>
+      </div>
+    ),
+  },
+  {
     icon: "📋",
     title: "The Rules — Short Version",
     subtitle: "SpotId works because everyone respects these boundaries.",
@@ -131,7 +172,8 @@ export default function OnboardingPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ onboardingComplete: true }),
     });
-    router.push(userId ? `/profile/${userId}` : "/");
+    // Send new users directly to Daily so they get their first tag in immediately
+    router.push("/daily");
   }
 
   return (
@@ -172,7 +214,7 @@ export default function OnboardingPage() {
             disabled={completing}
             className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 transition text-sm"
           >
-            {completing ? "Setting up your profile…" : isLast ? "Got it — Take me to my profile" : "Next →"}
+            {completing ? "Getting you set up…" : isLast ? "Got it — Tag My First Day →" : "Next →"}
           </button>
         </div>
       </div>
