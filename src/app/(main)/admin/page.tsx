@@ -95,6 +95,19 @@ export default function AdminPage() {
     fetchAll();
   }
 
+  async function togglePremium(userId: string, currentlyPremium: boolean, name?: string) {
+    const action = currentlyPremium ? "revoke" : "grant";
+    if (!confirm(`${action === "grant" ? "Grant" : "Revoke"} premium for "${name || userId}"?`)) return;
+    setDeletingId(userId);
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, isPremium: !currentlyPremium }),
+    });
+    setDeletingId(null);
+    fetchAll();
+  }
+
   async function deleteUser(userId: string, name?: string) {
     if (!confirm(`Permanently delete account for "${name || userId}"? This cannot be undone.`)) return;
     setDeletingId(userId);
@@ -285,6 +298,13 @@ export default function AdminPage() {
                   </td>
                   <td className="px-3 py-3 text-right">
                     <div className="flex items-center justify-end gap-3">
+                      <button
+                        onClick={() => togglePremium(u.id, u.isPremium, u.name)}
+                        disabled={deletingId === u.id}
+                        className={`text-xs hover:underline disabled:opacity-40 ${u.isPremium ? "text-yellow-600 hover:text-yellow-800" : "text-indigo-500 hover:text-indigo-700"}`}
+                      >
+                        {deletingId === u.id ? "…" : u.isPremium ? "Revoke ✅" : "Grant ✅"}
+                      </button>
                       <button
                         onClick={() => toggleBan(u.id, u.banned, u.name)}
                         disabled={deletingId === u.id}

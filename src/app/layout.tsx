@@ -49,6 +49,11 @@ export default function RootLayout({
         <meta name="theme-color" content="#4f46e5" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }`,
+          }}
+        />
       </head>
       <body className="min-h-full bg-gray-50 font-sans">
         <SessionProvider>{children}</SessionProvider>

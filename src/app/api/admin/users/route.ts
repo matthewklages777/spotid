@@ -32,13 +32,29 @@ export async function PATCH(req: NextRequest) {
   const session = await requireAdmin();
   if (!session) return Response.json({ error: "Forbidden" }, { status: 403 });
 
-  const { userId, banned } = await req.json();
-  if (!userId || typeof banned !== "boolean") {
-    return Response.json({ error: "userId and banned required" }, { status: 400 });
+  const body = await req.json();
+  const { userId } = body;
+  if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
+
+  // Ban/unban
+  if (typeof body.banned === "boolean") {
+    await prisma.user.update({ where: { id: userId }, data: { banned: body.banned } });
+    return Response.json({ success: true, banned: body.banned });
   }
 
-  await prisma.user.update({ where: { id: userId }, data: { banned } });
-  return Response.json({ success: true, banned });
+  // Grant / revoke premium
+  if (typeof body.isPremium === "boolean") {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isPremium: body.isPremium,
+        premiumSince: body.isPremium ? new Date() : null,
+      },
+    });
+    return Response.json({ success: true, isPremium: body.isPremium });
+  }
+
+  return Response.json({ error: "No valid operation specified" }, { status: 400 });
 }
 
 export async function DELETE(req: NextRequest) {
