@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, weeklyDigestEmail } from "@/lib/email";
+import { buildUnsubscribeUrl } from "@/app/api/unsubscribe/route";
 
 // Called weekly by a cron job. Protect with CRON_SECRET env var.
 export async function GET(req: NextRequest) {
@@ -62,9 +63,10 @@ export async function GET(req: NextRequest) {
       tags: p.hashtags.map((h) => h.hashtag.name),
     }));
 
+    const unsubscribeUrl = buildUnsubscribeUrl(user.email, base) + "&type=digest";
     await sendEmail({
       to: user.email,
-      ...weeklyDigestEmail(user.name || "there", items, `${base}/discover`, `${base}/settings`),
+      ...weeklyDigestEmail(user.name || "there", items, `${base}/discover`, unsubscribeUrl),
     });
     sent++;
   }
