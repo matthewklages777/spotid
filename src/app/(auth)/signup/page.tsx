@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignUpPage() {
+function SignUpContent() {
   const router = useRouter();
+  const params = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +14,12 @@ export default function SignUpPage() {
   const [tos, setTos] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
+
+  useEffect(() => {
+    const ref = params.get("ref");
+    if (ref) setReferralCode(ref.toUpperCase());
+  }, [params]);
 
   // Calculate max date (must be 18+)
   const maxDob = new Date();
@@ -30,7 +37,7 @@ export default function SignUpPage() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, dob }),
+      body: JSON.stringify({ name, email, password, dob, referralCode: referralCode || undefined }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -50,8 +57,19 @@ export default function SignUpPage() {
 
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-7 text-center">
           <h1 className="text-3xl font-black text-white">SpotId</h1>
-          <p className="text-indigo-200 text-sm mt-1">Create your account</p>
+          <p className="text-indigo-200 text-sm mt-1">
+            {referralCode ? `You were invited! Create your account` : "Create your account"}
+          </p>
         </div>
+
+        {referralCode && (
+          <div className="bg-green-50 border-b border-green-100 px-8 py-3 flex items-center gap-2">
+            <span className="text-green-600 text-lg">🎁</span>
+            <p className="text-sm text-green-800 font-semibold">
+              Referred by a friend — welcome to SpotId!
+            </p>
+          </div>
+        )}
 
         <div className="px-8 py-7 space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,5 +146,13 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense>
+      <SignUpContent />
+    </Suspense>
   );
 }

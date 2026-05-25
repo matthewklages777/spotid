@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   if (!rateLimit(getIp(req), 5, 15 * 60 * 1000)) {
     return Response.json({ error: "Too many attempts. Please wait a few minutes." }, { status: 429 });
   }
-  const { name, email, password, dob } = await req.json();
+  const { name, email, password, dob, referralCode } = await req.json();
 
   if (!name || !email || !password || !dob) {
     return Response.json({ error: "All fields are required" }, { status: 400 });
@@ -74,6 +74,21 @@ export async function POST(req: NextRequest) {
     to: email,
     ...welcomeEmail(name, `${base}/profile/${user.id}`),
   }).catch(() => {});
+
+  // Attribute referral if a valid code was provided
+  if (referralCode && typeof referralCode === "string") {
+    const code = referralCode.toUpperCase().trim();
+    const referrer = await prisma.user.findUnique({
+      where: { referralCode: code },
+      select: { id: true },
+    }).catch(() => null);
+    if (referrer && referrer.id !== user.id) {
+      await prisma.$transaction([
+        prisma.user.update({ where: { id: user.id }, data: { referredBy: referrer.id } }),
+        prisma.user.update({ where: { id: referrer.id }, data: { referralCount: { increment: 1 } } }),
+      ]).catch(() => {}); // non-fatal
+    }
+  }
 
   return Response.json({ id: user.id, email: user.email, name: user.name });
 }

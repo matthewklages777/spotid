@@ -6,7 +6,9 @@ import Stripe from "stripe";
 
 // POST /api/premium/subscribe
 // Creates a Stripe Checkout session and returns the URL.
+// Body: { plan?: "monthly" | "annual" }
 // Requires STRIPE_SECRET_KEY and STRIPE_PRICE_ID to be set in env.
+// Optional: STRIPE_ANNUAL_PRICE_ID for yearly billing at $39.99/yr.
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,12 +17,22 @@ export async function POST(req: NextRequest) {
   if (!userId || !userEmail) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const stripeKey = process.env["STRIPE_SECRET_KEY"];
-  const priceId = process.env["STRIPE_PRICE_ID"];
+  const monthlyPriceId = process.env["STRIPE_PRICE_ID"];
+  const annualPriceId = process.env["STRIPE_ANNUAL_PRICE_ID"];
   const base = process.env["NEXTAUTH_URL"] || "https://www.spotidapp.com";
 
-  if (!stripeKey || !priceId) {
+  if (!stripeKey || !monthlyPriceId) {
     return Response.json({ error: "Stripe not configured" }, { status: 503 });
   }
+
+  // Parse plan from request body
+  let plan: "monthly" | "annual" = "monthly";
+  try {
+    const body = await req.json();
+    if (body.plan === "annual" && annualPriceId) plan = "annual";
+  } catch { /* no body is fine */ }
+
+  const priceId = plan === "annual" && annualPriceId ? annualPriceId : monthlyPriceId;
 
   const stripe = new Stripe(stripeKey);
 
@@ -46,9 +58,9 @@ export async function POST(req: NextRequest) {
       trial_period_days: 7,
       trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
     },
-    success_url: `${base}/upgrade?success=1`,
+    success_url: `${base}/upgrade?success=1&plan=${plan}`,
     cancel_url: `${base}/upgrade?cancelled=1`,
-    metadata: { spotidUserId: userId },
+    metadata: { spotidUserId: userId, plan },
   });
 
   return Response.json({ url: checkoutSession.url });

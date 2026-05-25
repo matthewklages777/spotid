@@ -56,6 +56,7 @@ function UpgradeContent() {
   const [loading, setLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [polling, setPolling] = useState(false);
+  const [plan, setPlan] = useState<"monthly" | "annual">("monthly");
   const userId = (session?.user as { id?: string })?.id;
 
   const success = params.get("success") === "1";
@@ -87,11 +88,15 @@ function UpgradeContent() {
     }
   }, [userId, success]);
 
-  async function handleUpgrade() {
+  async function handleUpgrade(selectedPlan?: "monthly" | "annual") {
     if (!session) { router.push("/signin?next=/upgrade"); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/premium/subscribe", { method: "POST" });
+      const res = await fetch("/api/premium/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: selectedPlan ?? plan }),
+      });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else alert("Unable to start checkout. Please try again.");
@@ -148,6 +153,29 @@ function UpgradeContent() {
         </p>
       </div>
 
+      {/* Plan toggle */}
+      <div className="flex justify-center">
+        <div className="inline-flex bg-gray-100 rounded-2xl p-1 gap-1">
+          <button
+            onClick={() => setPlan("monthly")}
+            className={`px-5 py-2 rounded-xl text-sm font-bold transition ${
+              plan === "monthly" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setPlan("annual")}
+            className={`px-5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 ${
+              plan === "annual" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Annual
+            <span className="bg-green-500 text-white text-xs font-black px-2 py-0.5 rounded-full">Save 33%</span>
+          </button>
+        </div>
+      </div>
+
       {/* Pricing card */}
       <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 text-white text-center shadow-xl relative overflow-hidden">
         {/* Free trial ribbon */}
@@ -155,18 +183,38 @@ function UpgradeContent() {
           7-Day Free Trial
         </div>
         <p className="text-indigo-200 text-sm font-semibold uppercase tracking-wider mb-2">Premium Plan</p>
-        <div className="flex items-end justify-center gap-1 mb-1">
-          <span className="text-6xl font-black">$4</span>
-          <span className="text-2xl font-semibold text-indigo-200 mb-3">.99</span>
-        </div>
-        <p className="text-indigo-200 mb-1">per month after free trial · cancel any time</p>
+
+        {plan === "monthly" ? (
+          <>
+            <div className="flex items-end justify-center gap-1 mb-1">
+              <span className="text-6xl font-black">$4</span>
+              <span className="text-2xl font-semibold text-indigo-200 mb-3">.99</span>
+            </div>
+            <p className="text-indigo-200 mb-1">per month after free trial · cancel any time</p>
+          </>
+        ) : (
+          <>
+            <div className="flex items-end justify-center gap-1 mb-1">
+              <span className="text-6xl font-black">$39</span>
+              <span className="text-2xl font-semibold text-indigo-200 mb-3">.99</span>
+            </div>
+            <p className="text-indigo-200 mb-1">per year after free trial · just $3.33/month</p>
+            <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-1">
+              <span className="text-xs line-through text-indigo-300">$59.88/yr</span>
+              <span className="text-xs font-bold text-green-300">Save $19.89</span>
+            </div>
+          </>
+        )}
+
         <p className="text-green-300 text-sm font-semibold mb-6">✓ Try free for 7 days — no charge until day 8</p>
         <button
-          onClick={handleUpgrade}
+          onClick={() => handleUpgrade()}
           disabled={loading}
           className="w-full bg-white text-indigo-700 font-black text-lg py-4 rounded-2xl hover:bg-indigo-50 transition disabled:opacity-60 shadow-lg"
         >
-          {loading ? "Opening checkout…" : session ? "Start Free Trial →" : "Sign in to Start Trial →"}
+          {loading ? "Opening checkout…" : session
+            ? plan === "annual" ? "Start Free Trial — Best Value →" : "Start Free Trial →"
+            : "Sign in to Start Trial →"}
         </button>
         <p className="text-indigo-300 text-xs mt-3">Secure checkout via Stripe · Card required · Cancel before day 8 to avoid charge</p>
       </div>
@@ -225,15 +273,24 @@ function UpgradeContent() {
         ))}
       </div>
 
-      <div className="text-center pb-4">
-        <button
-          onClick={handleUpgrade}
-          disabled={loading}
-          className="bg-indigo-600 text-white font-black text-lg px-10 py-4 rounded-full hover:bg-indigo-700 transition disabled:opacity-60 shadow-lg"
-        >
-          {loading ? "Opening checkout…" : "Start Your Free 7-Day Trial →"}
-        </button>
-        <p className="text-xs text-gray-400 mt-3">No charge for 7 days · $4.99/month after · Stripe secure · Cancel any time</p>
+      <div className="text-center pb-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            onClick={() => handleUpgrade("monthly")}
+            disabled={loading}
+            className="bg-indigo-600 text-white font-bold text-base px-8 py-3 rounded-full hover:bg-indigo-700 transition disabled:opacity-60 shadow"
+          >
+            {loading ? "Opening checkout…" : "Monthly — $4.99/mo →"}
+          </button>
+          <button
+            onClick={() => handleUpgrade("annual")}
+            disabled={loading}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base px-8 py-3 rounded-full hover:opacity-90 transition disabled:opacity-60 shadow"
+          >
+            {loading ? "Opening checkout…" : "Annual — $39.99/yr · Best Value 🏆"}
+          </button>
+        </div>
+        <p className="text-xs text-gray-400">No charge for 7 days · Stripe secure · Cancel any time</p>
       </div>
 
     </div>
