@@ -789,6 +789,47 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
           );
         })()}
 
+        {/* Profile Completeness — owner only, shown when score < 100 */}
+        {isOwn && (profile as UserProfile & { completenessScore?: number; completenessItems?: { key: string; label: string; points: number }[] }).completenessScore !== undefined &&
+         (profile as UserProfile & { completenessScore?: number }).completenessScore! < 100 && (
+          <div className="pt-4 mt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Profile Strength</p>
+              <span className="text-xs font-bold text-indigo-600">
+                {(profile as UserProfile & { completenessScore?: number }).completenessScore}%
+              </span>
+            </div>
+            {/* Progress bar */}
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-3">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${(profile as UserProfile & { completenessScore?: number }).completenessScore}%`,
+                  background: (profile as UserProfile & { completenessScore?: number }).completenessScore! >= 80
+                    ? "#22c55e" : (profile as UserProfile & { completenessScore?: number }).completenessScore! >= 50
+                    ? "#f59e0b" : "#ef4444",
+                }}
+              />
+            </div>
+            {/* Next steps */}
+            <div className="space-y-1">
+              {((profile as UserProfile & { completenessItems?: { key: string; label: string; points: number }[] }).completenessItems ?? []).slice(0, 3).map((item) => (
+                <div key={item.key} className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center flex-shrink-0 text-[9px] text-gray-400">○</span>
+                  <span>{item.label}</span>
+                  <span className="text-gray-400 ml-auto">+{item.points}%</span>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setEditing(true)}
+              className="mt-2.5 text-xs text-indigo-600 font-semibold hover:underline"
+            >
+              Complete your profile →
+            </button>
+          </div>
+        )}
+
         {/* Who Viewed Me — owner only */}
         {isOwn && viewers && viewers.count > 0 && (
           <div className="pt-4 mt-3 border-t border-gray-100">

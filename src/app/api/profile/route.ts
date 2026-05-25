@@ -83,7 +83,21 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return Response.json({ ...user, savedByCount, streak, totalDays });
+  // Compute profile completeness score (0–100)
+  // Each step has a point value; helps users know what to fill in
+  const completenessSteps = [
+    { key: "photo", done: !!user.image, points: 20, label: "Add a profile photo" },
+    { key: "bio", done: !!user.bio, points: 15, label: "Write a bio" },
+    { key: "occupation", done: !!user.occupation, points: 15, label: "Add your occupation" },
+    { key: "location", done: !!user.location, points: 10, label: "Add your location" },
+    { key: "username", done: !!user.username, points: 10, label: "Set a username (@handle)" },
+    { key: "daily", done: totalDays > 0, points: 20, label: "Tag your first day" },
+    { key: "closet_or_work", done: user.closetItems.length > 0 || user.workItems.length > 0, points: 10, label: "Add a listing or service" },
+  ];
+  const completenessScore = completenessSteps.reduce((sum, s) => sum + (s.done ? s.points : 0), 0);
+  const completenessItems = completenessSteps.filter((s) => !s.done).map((s) => ({ key: s.key, label: s.label, points: s.points }));
+
+  return Response.json({ ...user, savedByCount, streak, totalDays, completenessScore, completenessItems });
 }
 
 export async function PUT(req: NextRequest) {
