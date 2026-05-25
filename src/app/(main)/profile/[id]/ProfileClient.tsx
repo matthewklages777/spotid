@@ -843,8 +843,8 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
                     <div className="w-8 h-8 rounded-full bg-gray-200 blur-sm flex items-center justify-center" />
                   )}
                 </div>
-                <p className="text-sm font-bold text-indigo-700">Unlock with Premium</p>
-                <p className="text-xs text-gray-500 mt-0.5">See exactly who viewed your profile this month</p>
+                <p className="text-sm font-bold text-indigo-700">Try Free for 7 Days</p>
+                <p className="text-xs text-gray-500 mt-0.5">See exactly who viewed your profile — no charge for 7 days</p>
               </Link>
             ) : null}
           </div>
@@ -957,9 +957,9 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
                   <span className="text-xl">📊</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-indigo-900">See which tags drive your views</p>
-                    <p className="text-xs text-gray-500">Premium shows views per hashtag so you know what's working</p>
+                    <p className="text-xs text-gray-500">7-day free trial — see views per hashtag and know what's working</p>
                   </div>
-                  <span className="text-xs font-bold text-indigo-600 group-hover:underline whitespace-nowrap">$4.99/mo →</span>
+                  <span className="text-xs font-bold text-indigo-600 group-hover:underline whitespace-nowrap">Free Trial →</span>
                 </Link>
               )}
             </div>

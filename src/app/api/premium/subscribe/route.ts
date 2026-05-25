@@ -40,6 +40,12 @@ export async function POST(req: NextRequest) {
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
+    // 7-day free trial — card is required but not charged until day 8.
+    // trial_settings prevents charging if the card is declined after the trial.
+    subscription_data: {
+      trial_period_days: 7,
+      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+    },
     success_url: `${base}/upgrade?success=1`,
     cancel_url: `${base}/upgrade?cancelled=1`,
     metadata: { spotidUserId: userId },

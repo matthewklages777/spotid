@@ -136,34 +136,39 @@ function UpgradeContent() {
 
       {/* Hero */}
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 text-sm font-semibold px-4 py-1.5 rounded-full">
-          <span>✨</span> SpotId Premium
+        <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 text-sm font-bold px-4 py-1.5 rounded-full">
+          <span>🎁</span> 7 days free — then $4.99/month
         </div>
         <h1 className="text-4xl font-black text-gray-900 leading-tight">
           Know who&apos;s looking.<br />Be impossible to miss.
         </h1>
         <p className="text-gray-500 text-lg max-w-xl mx-auto">
-          Premium unlocks the full power of SpotId — real-time viewer identity, verified status,
-          priority search placement, and more.
+          Try SpotId Premium free for 7 days. Unlock real-time viewer identity, verified status,
+          hashtag analytics, priority search placement, and more.
         </p>
       </div>
 
       {/* Pricing card */}
-      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 text-white text-center shadow-xl">
+      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 text-white text-center shadow-xl relative overflow-hidden">
+        {/* Free trial ribbon */}
+        <div className="absolute top-4 right-4 bg-green-400 text-green-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+          7-Day Free Trial
+        </div>
         <p className="text-indigo-200 text-sm font-semibold uppercase tracking-wider mb-2">Premium Plan</p>
         <div className="flex items-end justify-center gap-1 mb-1">
           <span className="text-6xl font-black">$4</span>
           <span className="text-2xl font-semibold text-indigo-200 mb-3">.99</span>
         </div>
-        <p className="text-indigo-200 mb-6">per month · cancel any time</p>
+        <p className="text-indigo-200 mb-1">per month after free trial · cancel any time</p>
+        <p className="text-green-300 text-sm font-semibold mb-6">✓ Try free for 7 days — no charge until day 8</p>
         <button
           onClick={handleUpgrade}
           disabled={loading}
           className="w-full bg-white text-indigo-700 font-black text-lg py-4 rounded-2xl hover:bg-indigo-50 transition disabled:opacity-60 shadow-lg"
         >
-          {loading ? "Opening checkout…" : session ? "Upgrade Now →" : "Sign in to Upgrade →"}
+          {loading ? "Opening checkout…" : session ? "Start Free Trial →" : "Sign in to Start Trial →"}
         </button>
-        <p className="text-indigo-300 text-xs mt-3">Secure checkout via Stripe · No hidden fees</p>
+        <p className="text-indigo-300 text-xs mt-3">Secure checkout via Stripe · Card required · Cancel before day 8 to avoid charge</p>
       </div>
 
       {/* Feature grid */}
@@ -192,6 +197,10 @@ function UpgradeContent() {
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
         <h2 className="font-black text-gray-900 text-lg">Common questions</h2>
         {[
+          {
+            q: "How does the free trial work?",
+            a: "You get 7 days of full premium access at no charge. Your card is required to start, but won't be billed until day 8. Cancel any time before day 8 and you owe nothing.",
+          },
           {
             q: "Can I cancel any time?",
             a: "Yes. Cancel from Settings → Subscription any time. You keep premium access until the end of the billing period.",
@@ -222,9 +231,9 @@ function UpgradeContent() {
           disabled={loading}
           className="bg-indigo-600 text-white font-black text-lg px-10 py-4 rounded-full hover:bg-indigo-700 transition disabled:opacity-60 shadow-lg"
         >
-          {loading ? "Opening checkout…" : "Get SpotId Premium →"}
+          {loading ? "Opening checkout…" : "Start Your Free 7-Day Trial →"}
         </button>
-        <p className="text-xs text-gray-400 mt-3">$4.99/month · Stripe secure checkout · Cancel any time</p>
+        <p className="text-xs text-gray-400 mt-3">No charge for 7 days · $4.99/month after · Stripe secure · Cancel any time</p>
       </div>
 
     </div>

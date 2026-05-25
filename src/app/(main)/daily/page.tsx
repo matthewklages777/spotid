@@ -406,9 +406,9 @@ export default function DailyPage() {
             <span className="text-xl flex-shrink-0">👁️</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-indigo-900">See who finds you today</p>
-              <p className="text-xs text-gray-500">Upgrade to Premium to see exactly who views your profile</p>
+              <p className="text-xs text-gray-500">7-day free trial — see exactly who views your profile</p>
             </div>
-            <span className="text-xs font-bold text-indigo-600 group-hover:underline whitespace-nowrap">$4.99/mo →</span>
+            <span className="text-xs font-bold text-indigo-600 group-hover:underline whitespace-nowrap">Free Trial →</span>
           </Link>
         )}
       </div>

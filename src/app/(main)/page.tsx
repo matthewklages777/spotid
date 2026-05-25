@@ -440,12 +440,12 @@ function HomeContent() {
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-5 flex items-center gap-4">
               <div className="text-3xl flex-shrink-0">✨</div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-gray-900 text-sm">See who&apos;s viewing your profile</p>
-                <p className="text-xs text-gray-500 mt-0.5">Upgrade to Premium for viewer identity, 90-day analytics, and priority search placement.</p>
+                <p className="font-bold text-gray-900 text-sm">Try Premium free for 7 days</p>
+                <p className="text-xs text-gray-500 mt-0.5">See exactly who viewed your profile, get 90-day analytics, and appear first in search.</p>
               </div>
               <Link href="/upgrade"
-                className="flex-shrink-0 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-indigo-700 transition">
-                $4.99/mo →
+                className="flex-shrink-0 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-indigo-700 transition whitespace-nowrap">
+                Free Trial →
               </Link>
             </div>
           )}
