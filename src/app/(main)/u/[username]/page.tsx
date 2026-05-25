@@ -32,12 +32,12 @@ export async function generateMetadata(
       alternates: { canonical: profileUrl },
       openGraph: {
         title, description, url: profileUrl, siteName: "SpotId", type: "profile",
-        images: user.image ? [{ url: user.image, width: 400, height: 400, alt: name }] : [],
+        images: [{ url: `${BASE_URL}/api/og?userId=${user.id}`, width: 1200, height: 630, alt: name }],
       },
       twitter: {
-        card: "summary",
+        card: "summary_large_image",
         title, description,
-        images: user.image ? [user.image] : [],
+        images: [`${BASE_URL}/api/og?userId=${user.id}`],
       },
     };
   } catch {
