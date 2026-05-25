@@ -1,13 +1,6 @@
-import { prisma } from "@/lib/prisma";
-
 // Lightweight health check used by Railway (and any uptime monitor).
-// Returns 200 when the app is up and the database is reachable.
+// Only checks that the Node.js server is responding — DB health is at /api/db-status.
+// Keeping this DB-free ensures Railway healthcheck passes as long as the server starts.
 export async function GET() {
-  try {
-    // Simple count query — works with all Prisma adapters including libsql
-    await prisma.user.count();
-    return Response.json({ status: "ok", db: "ok" });
-  } catch {
-    return Response.json({ status: "error", db: "unreachable" }, { status: 503 });
-  }
+  return Response.json({ status: "ok" });
 }
