@@ -460,6 +460,120 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Broadcast Email */}
+      <BroadcastPanel />
+
+    </div>
+  );
+}
+
+function BroadcastPanel() {
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [target, setTarget] = useState<"all" | "premium" | "free" | "active7d">("all");
+  const [testEmail, setTestEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [result, setResult] = useState("");
+
+  async function send(isTest: boolean) {
+    if (!subject.trim() || !body.trim()) { alert("Subject and body are required."); return; }
+    if (isTest && !testEmail.trim()) { alert("Enter a test email address."); return; }
+    if (!isTest && !confirm(`Send to ALL ${target} users? This cannot be undone.`)) return;
+    setStatus("sending");
+    setResult("");
+    try {
+      const res = await fetch("/api/admin/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body, target, ...(isTest ? { testEmail } : {}) }),
+      });
+      const data = await res.json();
+      setResult(JSON.stringify(data, null, 2));
+      setStatus(res.ok ? "done" : "error");
+    } catch (e) {
+      setResult(String(e));
+      setStatus("error");
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+      <div>
+        <h2 className="font-bold text-gray-900">📣 Broadcast Email</h2>
+        <p className="text-sm text-gray-400 mt-0.5">Send a message to all users or a filtered subset. Always test first.</p>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Target Audience</label>
+          <select
+            value={target}
+            onChange={(e) => setTarget(e.target.value as typeof target)}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <option value="all">All users</option>
+            <option value="premium">Premium members only</option>
+            <option value="free">Free users only</option>
+            <option value="active7d">Active in last 7 days</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Subject Line</label>
+          <input
+            type="text"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="e.g. SpotId just launched in your city!"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Message Body (plain text, paragraphs separated by blank lines)</label>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={6}
+            placeholder={"We've been working hard on something exciting...\n\nJoin us at spotidapp.com/daily to tag your day."}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-y"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Test Email (sends only to this address)</label>
+          <input
+            type="email"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+            placeholder="your@email.com"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => send(true)}
+            disabled={status === "sending"}
+            className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50"
+          >
+            {status === "sending" ? "Sending…" : "Send Test →"}
+          </button>
+          <button
+            onClick={() => send(false)}
+            disabled={status === "sending"}
+            className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+          >
+            {status === "sending" ? "Sending…" : `Broadcast to ${target} →`}
+          </button>
+        </div>
+
+        {result && (
+          <pre className={`text-xs rounded-xl p-3 overflow-auto max-h-32 ${status === "done" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+            {result}
+          </pre>
+        )}
+      </div>
     </div>
   );
 }

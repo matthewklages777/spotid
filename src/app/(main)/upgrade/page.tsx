@@ -4,6 +4,29 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 
+// Replace these with real member quotes once you have them.
+// Each quote needs: quote, name, occupation, location, star rating
+const TESTIMONIALS = [
+  {
+    quote: "I listed a vintage leather jacket with three hashtags and someone messaged me within two hours. Sold it the same day.",
+    name: "Sarah M.",
+    meta: "Vintage seller · Plano, TX",
+    stars: 5,
+  },
+  {
+    quote: "Finally a way to be discoverable without screaming on social media. I tagged my location and two people found me at a local market.",
+    name: "Derek T.",
+    meta: "Freelance designer · Austin, TX",
+    stars: 5,
+  },
+  {
+    quote: "The viewer analytics are addicting. I can see which hashtags actually bring traffic vs. the ones I thought would work.",
+    name: "Amara J.",
+    meta: "Premium member · Dallas, TX",
+    stars: 5,
+  },
+];
+
 const FEATURES = [
   {
     icon: "👁️",
@@ -235,6 +258,27 @@ function UpgradeContent() {
                     <span className="bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 rounded-full">Premium: {f.premium}</span>
                   </div>
                 </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-black text-gray-900 text-center">What members say</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
+              <div className="flex gap-0.5">
+                {Array.from({ length: t.stars }).map((_, j) => (
+                  <span key={j} className="text-yellow-400 text-sm">★</span>
+                ))}
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
+              <div>
+                <p className="text-sm font-bold text-gray-900">{t.name}</p>
+                <p className="text-xs text-gray-500">{t.meta}</p>
               </div>
             </div>
           ))}
