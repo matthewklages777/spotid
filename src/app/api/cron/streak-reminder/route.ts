@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmail, streakReminderEmail } from "@/lib/email";
+import { buildUnsubscribeUrl } from "@/app/api/unsubscribe/route";
 
 // Called once daily (e.g. at 4 PM local time via cron).
 // Creates in-app notifications for users who had a streak going but haven't tagged today yet.
@@ -72,7 +74,16 @@ export async function GET(req: NextRequest) {
     return Response.json({ notified: 0, reason: "All eligible users already notified today" });
   }
 
-  const notifications = toNotify.map((userId) => {
+  // Fetch user emails for email notifications
+  const userEmails = await prisma.user.findMany({
+    where: { id: { in: toNotify } },
+    select: { id: true, name: true, email: true, emailDigest: true },
+  });
+  const emailByUserId = Object.fromEntries(userEmails.map((u) => [u.id, u]));
+
+  const base = process.env["NEXTAUTH_URL"] || "https://www.spotidapp.com";
+
+  const notificationsData = toNotify.map((userId) => {
     const dates = datesByUser.get(userId) ?? [];
     // Count streak ending yesterday
     let streak = 0;
@@ -84,16 +95,32 @@ export async function GET(req: NextRequest) {
     const streakText = streak > 1 ? ` Your ${streak}-day streak is at risk!` : " Don't break your streak!";
     return {
       userId,
-      type: "streak_reminder",
-      title: "🔥 Tag today to keep your streak",
-      body: `You haven't tagged yet today.${streakText} Head to your Daily Profile to check in.`,
-      linkUrl: "/daily",
-      read: false,
+      streak,
+      notification: {
+        userId,
+        type: "streak_reminder",
+        title: "🔥 Tag today to keep your streak",
+        body: `You haven't tagged yet today.${streakText} Head to your Daily Profile to check in.`,
+        linkUrl: "/daily",
+        read: false,
+      },
     };
   });
 
-  // Batch insert notifications
-  await prisma.notification.createMany({ data: notifications });
+  // Batch insert in-app notifications
+  await prisma.notification.createMany({ data: notificationsData.map((n) => n.notification) });
 
-  return Response.json({ notified: notifications.length, skipped: alreadyNotifiedIds.size });
+  // Send emails (non-blocking, best-effort)
+  let emailsSent = 0;
+  for (const { userId, streak } of notificationsData) {
+    const u = emailByUserId[userId];
+    if (!u?.email || u.emailDigest === false) continue;
+    const unsubUrl = buildUnsubscribeUrl(u.email, base) + "&type=digest";
+    sendEmail({
+      to: u.email,
+      ...streakReminderEmail(u.name || "there", streak, `${base}/daily`, unsubUrl),
+    }).then(() => { emailsSent++; }).catch(() => {});
+  }
+
+  return Response.json({ notified: notificationsData.length, skipped: alreadyNotifiedIds.size, emailsQueued: notificationsData.length });
 }

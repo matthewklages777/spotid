@@ -310,6 +310,37 @@ export function premiumStatsEmail(
   };
 }
 
+export function streakReminderEmail(name: string, streak: number, dailyUrl: string, settingsUrl: string): EmailTemplate {
+  const streakText = streak > 1 ? `Your ${streak}-day streak is at risk!` : "Don't break your streak!";
+  const fire = streak >= 7 ? "🔥🔥🔥" : streak >= 3 ? "🔥🔥" : "🔥";
+  return {
+    subject: `${fire} Tag today to keep your SpotId streak going`,
+    html: `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:20px 24px;border-radius:12px 12px 0 0">
+          <span style="color:white;font-size:20px;font-weight:900">SpotId</span>
+        </div>
+        <div style="background:white;padding:28px 24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
+          <p style="font-size:40px;margin:0 0 12px 0;text-align:center">${fire}</p>
+          <h2 style="color:#111827;margin:0 0 12px 0;text-align:center">${streakText}</h2>
+          <p style="color:#6b7280;margin:0 0 20px 0;text-align:center">
+            Hi ${name}, you haven't tagged today yet. Take 30 seconds to check in and stay discoverable.
+          </p>
+          <div style="text-align:center;margin:24px 0">
+            <a href="${dailyUrl}" style="background:#4f46e5;color:white;padding:14px 32px;border-radius:100px;text-decoration:none;font-weight:700;font-size:16px;display:inline-block">
+              Tag Today →
+            </a>
+          </div>
+          <p style="color:#9ca3af;font-size:12px;text-align:center;margin:0">
+            <a href="${settingsUrl}" style="color:#9ca3af">Unsubscribe from streak reminders</a>
+          </p>
+        </div>
+      </div>
+    `,
+    text: `${streakText}\n\nHi ${name}, you haven't tagged today yet. Tag now to stay discoverable:\n${dailyUrl}\n\nManage notifications: ${settingsUrl}`,
+  };
+}
+
 export function newMessageEmail(senderName: string, preview: string, inboxUrl: string): EmailTemplate {
   return {
     subject: `New message from ${senderName} on SpotId`,
