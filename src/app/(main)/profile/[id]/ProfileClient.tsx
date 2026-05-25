@@ -74,6 +74,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
   const [showQr, setShowQr] = useState(false);
   const [viewStats, setViewStats] = useState<{ date: string; count: number }[]>([]);
   const [viewers, setViewers] = useState<{ isPremium: boolean; count: number; viewers?: ViewerEntry[]; teaser?: { createdAt: string }[] } | null>(null);
+  const [tagStats, setTagStats] = useState<{ tags: { name: string; usageCount: number; avgViews: number | null; totalViews: number | null }[]; isPremium: boolean; totalDays: number } | null>(null);
   const [interestTagsEdit, setInterestTagsEdit] = useState<string[]>([]);
   const [savingInterests, setSavingInterests] = useState(false);
   const [following, setFollowing] = useState(false);
@@ -189,6 +190,9 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
       }).catch(() => {});
       fetch("/api/premium/viewers").then((r) => r.json()).then((d) => {
         if (d && typeof d.count === "number") setViewers(d);
+      }).catch(() => {});
+      fetch("/api/profile/tag-stats").then((r) => r.json()).then((d) => {
+        if (d && Array.isArray(d.tags)) setTagStats(d);
       }).catch(() => {});
     }
   }, [isOwn]);
@@ -876,6 +880,88 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
                   );
                 })}
               </div>
+            </div>
+          );
+        })()}
+
+        {/* Hashtag analytics — owner only, premium-gated */}
+        {isOwn && tagStats && tagStats.tags.length > 0 && (() => {
+          const isPrem = tagStats.isPremium;
+          const maxTotal = Math.max(...tagStats.tags.map((t) => t.totalViews ?? t.usageCount), 1);
+          return (
+            <div className="pt-4 mt-3 border-t border-gray-100">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Hashtag Breakdown
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {isPrem
+                      ? `Your top tags by total views — last 90 days`
+                      : `Most-used tags — upgrade to see view performance`}
+                  </p>
+                </div>
+                {!isPrem && (
+                  <Link href="/upgrade" className="text-xs text-indigo-600 font-semibold hover:underline whitespace-nowrap">
+                    Unlock →
+                  </Link>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                {tagStats.tags.slice(0, isPrem ? 10 : 5).map((t) => {
+                  const barPct = isPrem
+                    ? Math.max(((t.totalViews ?? 0) / maxTotal) * 100, 3)
+                    : Math.max((t.usageCount / (tagStats.tags[0]?.usageCount || 1)) * 100, 3);
+                  return (
+                    <div key={t.name} className="flex items-center gap-3">
+                      <Link
+                        href={`/tag/${t.name}`}
+                        className="text-xs text-indigo-600 font-medium w-28 flex-shrink-0 truncate hover:underline"
+                      >
+                        #{t.name}
+                      </Link>
+                      <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden relative">
+                        <div
+                          className={`h-full rounded-full transition-all ${isPrem ? "bg-indigo-400" : "bg-gray-300"}`}
+                          style={{ width: `${barPct}%` }}
+                        />
+                        {!isPrem && (
+                          <div className="absolute inset-0 flex items-center justify-end pr-2">
+                            <span className="text-[9px] text-gray-400">🔒</span>
+                          </div>
+                        )}
+                      </div>
+                      {isPrem ? (
+                        <div className="flex items-center gap-2 flex-shrink-0 w-28 text-right justify-end">
+                          <span className="text-xs text-gray-700 font-semibold">{t.totalViews ?? 0} views</span>
+                          {t.avgViews !== null && t.avgViews > 0 && (
+                            <span className="text-xs text-gray-400">~{t.avgViews}/day</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 flex-shrink-0 w-16 text-right">
+                          {t.usageCount}×
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {!isPrem && (
+                <Link
+                  href="/upgrade"
+                  className="mt-4 flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl px-4 py-3 hover:border-indigo-300 transition group"
+                >
+                  <span className="text-xl">📊</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-indigo-900">See which tags drive your views</p>
+                    <p className="text-xs text-gray-500">Premium shows views per hashtag so you know what's working</p>
+                  </div>
+                  <span className="text-xs font-bold text-indigo-600 group-hover:underline whitespace-nowrap">$4.99/mo →</span>
+                </Link>
+              )}
             </div>
           );
         })()}

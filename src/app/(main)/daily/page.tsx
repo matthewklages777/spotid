@@ -72,6 +72,8 @@ export default function DailyPage() {
   const [streak, setStreak] = useState(0);
   const [isPremium, setIsPremium] = useState(false);
   const [trendingTags, setTrendingTags] = useState<string[]>([]);
+  const [topTags, setTopTags] = useState<{ name: string; usageCount: number; avgViews: number | null; totalViews: number | null }[]>([]);
+  const [topTagsIsPremium, setTopTagsIsPremium] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -94,6 +96,12 @@ export default function DailyPage() {
     fetch("/api/trending").then((r) => r.json()).then((d) => {
       const tags: string[] = (d.today ?? []).slice(0, 16).map((t: { name: string }) => t.name);
       setTrendingTags(tags);
+    }).catch(() => {});
+    fetch("/api/profile/tag-stats").then((r) => r.json()).then((d) => {
+      if (d && Array.isArray(d.tags) && d.tags.length > 0) {
+        setTopTags(d.tags.slice(0, 8));
+        setTopTagsIsPremium(!!d.isPremium);
+      }
     }).catch(() => {});
     const uid = (session?.user as { id?: string })?.id;
     if (uid) {
@@ -437,6 +445,65 @@ export default function DailyPage() {
           <p className="text-xs text-gray-500 mt-3 text-center">
             Anyone searching any of these tags today will find your profile
           </p>
+        </div>
+      )}
+
+      {/* Smart tag suggestions — your best-performing tags */}
+      {topTags.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                <span>{topTagsIsPremium ? "📊" : "⭐"}</span>
+                {topTagsIsPremium ? "Your Best Tags" : "Your Top Tags"}
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {topTagsIsPremium
+                  ? "Tags sorted by total views — reuse what works"
+                  : "Most-used tags from your history — upgrade to see view performance"}
+              </p>
+            </div>
+            {!topTagsIsPremium && (
+              <Link href="/upgrade" className="text-xs text-indigo-600 font-semibold hover:underline whitespace-nowrap">
+                See views →
+              </Link>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {topTags.map((t) => (
+              <button
+                key={t.name}
+                type="button"
+                onClick={() => { if (!hashtags.includes(t.name)) setHashtags([...hashtags, t.name]); }}
+                disabled={hashtags.includes(t.name)}
+                className={`group relative flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border transition ${
+                  hashtags.includes(t.name)
+                    ? "bg-indigo-100 border-indigo-200 text-indigo-400 cursor-default"
+                    : "bg-white border-gray-200 text-gray-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700"
+                }`}
+                title={topTagsIsPremium && t.totalViews !== null
+                  ? `${t.totalViews} total views, avg ${t.avgViews}/day`
+                  : `Used ${t.usageCount} times`}
+              >
+                <span className="font-medium">#{t.name}</span>
+                {topTagsIsPremium && t.totalViews !== null && t.totalViews > 0 ? (
+                  <span className="text-xs text-indigo-500 font-semibold">
+                    {t.totalViews}👁️
+                  </span>
+                ) : !topTagsIsPremium ? (
+                  <span className="text-xs text-gray-400">{t.usageCount}×</span>
+                ) : null}
+                {hashtags.includes(t.name) && (
+                  <span className="text-xs text-indigo-400">✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+          {!topTagsIsPremium && (
+            <p className="text-xs text-gray-400 mt-3">
+              🔒 <Link href="/upgrade" className="text-indigo-500 hover:underline">Upgrade to Premium</Link> to see which tags bring the most profile views
+            </p>
+          )}
         </div>
       )}
 
