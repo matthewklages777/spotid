@@ -11,11 +11,13 @@ export const metadata: Metadata = {
     description: "Clients search hashtags and find you. No algorithms. No bidding. No monthly fees.",
     type: "website",
     siteName: "SpotId",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "SpotId — Get Discovered as a Freelancer" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Get Discovered as a Freelancer by Hashtag — SpotId",
     description: "List your skills on SpotId. Clients find you by hashtag — no bidding, no fees.",
+    images: ["/api/og"],
   },
   alternates: { canonical: "https://www.spotidapp.com/freelancers" },
 };

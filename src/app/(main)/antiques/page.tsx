@@ -11,11 +11,13 @@ export const metadata: Metadata = {
     description: "Search rare antiques and vintage collectibles by hashtag. List once, get found forever.",
     type: "website",
     siteName: "SpotId",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "SpotId — Find Antiques & Vintage by Hashtag" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Find Antiques & Vintage Items by Hashtag — SpotId",
     description: "Search rare antiques and vintage collectibles by hashtag on SpotId.",
+    images: ["/api/og"],
   },
   alternates: { canonical: "https://www.spotidapp.com/antiques" },
 };

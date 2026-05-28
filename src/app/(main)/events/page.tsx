@@ -11,11 +11,13 @@ export const metadata: Metadata = {
     description: "Tag yourself at any event. Others at the same event find you instantly. SpotId — real-time event networking by hashtag.",
     type: "website",
     siteName: "SpotId",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "SpotId — Connect at Events by Hashtag" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Find People at Events by Hashtag — SpotId",
     description: "Tag yourself at concerts, conferences, and meetups. Find others there in real time.",
+    images: ["/api/og"],
   },
   alternates: { canonical: "https://www.spotidapp.com/events" },
 };
