@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 type BrowseType = "closet" | "work";
@@ -39,6 +40,8 @@ function timeAgo(iso: string) {
 function BrowseContent() {
   const params = useSearchParams();
   const router = useRouter();
+  const { data: session } = useSession();
+  const isLoggedIn = !!session;
   const [type, setType] = useState<BrowseType>((params.get("type") as BrowseType) || "closet");
   const [q, setQ] = useState(params.get("q") || "");
   const [items, setItems] = useState<AnyItem[]>([]);
@@ -164,22 +167,47 @@ function BrowseContent() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
           <p className="text-5xl mb-4">{type === "closet" ? "🏷️" : "💼"}</p>
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Nothing here yet</h2>
-          <p className="text-gray-500 text-sm">
+          <h2 className="text-lg font-bold text-gray-900 mb-2">
+            {q ? `No results for "${q}"` : "Nothing listed yet"}
+          </h2>
+          <p className="text-gray-500 text-sm max-w-xs mx-auto">
             {q
-              ? `No ${type === "closet" ? "items" : "services"} match "${q}" — try different tags.`
-              : `No ${type === "closet" ? "items for sale" : "service listings"} yet. Be the first!`}
+              ? `No ${type === "closet" ? "items" : "services"} match that search — try different tags.`
+              : isLoggedIn
+                ? `Be the first to list a ${type === "closet" ? "closet item" : "service"}!`
+                : `Sign up free and be the first to list ${type === "closet" ? "items for sale" : "your services"} here.`}
           </p>
-          <Link
-            href={type === "closet" ? "/closet" : "/work"}
-            className={`inline-block mt-5 text-sm px-5 py-2 rounded-full font-semibold transition text-white ${
-              type === "closet" ? "bg-indigo-600 hover:bg-indigo-700" : "bg-emerald-600 hover:bg-emerald-700"
-            }`}
-          >
-            Add your {type === "closet" ? "listing" : "service"} →
-          </Link>
+          <div className="flex gap-3 justify-center mt-5 flex-wrap">
+            {isLoggedIn ? (
+              <Link
+                href={type === "closet" ? "/closet" : "/work"}
+                className={`inline-block text-sm px-6 py-2.5 rounded-full font-semibold transition text-white ${
+                  type === "closet" ? "bg-indigo-600 hover:bg-indigo-700" : "bg-emerald-600 hover:bg-emerald-700"
+                }`}
+              >
+                Add your {type === "closet" ? "listing" : "service"} →
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/signup"
+                  className={`inline-block text-sm px-6 py-2.5 rounded-full font-bold transition text-white ${
+                    type === "closet" ? "bg-indigo-600 hover:bg-indigo-700" : "bg-emerald-600 hover:bg-emerald-700"
+                  }`}
+                >
+                  Join Free & List →
+                </Link>
+                <Link
+                  href="/about"
+                  className="inline-block text-sm px-6 py-2.5 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
+                >
+                  Learn More
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       ) : type === "closet" ? (
         /* ── Closet grid ── */
