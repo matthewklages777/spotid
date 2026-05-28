@@ -18,7 +18,7 @@ interface Report {
   reported?: { id: string; name?: string; email: string };
 }
 
-type Panel = "reports" | "users" | "analytics";
+type Panel = "reports" | "users" | "analytics" | "launch";
 
 interface Analytics {
   totals: {
@@ -171,7 +171,7 @@ export default function AdminPage() {
 
       {/* Tab switch */}
       <div className="flex gap-2 flex-wrap">
-        {(["reports", "users", "analytics"] as Panel[]).map((p) => (
+        {(["reports", "users", "analytics", "launch"] as Panel[]).map((p) => (
           <button
             key={p}
             onClick={() => setPanel(p)}
@@ -179,7 +179,7 @@ export default function AdminPage() {
               panel === p ? "bg-indigo-600 text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-indigo-300"
             }`}
           >
-            {p === "reports" ? `Reports (${pendingReports})` : p === "users" ? `All Users (${totalUsers})` : "📊 Analytics"}
+            {p === "reports" ? `Reports (${pendingReports})` : p === "users" ? `All Users (${totalUsers})` : p === "analytics" ? "📊 Analytics" : "🚀 Launch"}
           </button>
         ))}
       </div>
@@ -447,6 +447,11 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* Launch panel */}
+      {panel === "launch" && (
+        <LaunchPanel stats={analytics?.totals} />
+      )}
+
       {/* Cron Jobs */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
         <div>
@@ -615,6 +620,140 @@ function CronButton({ label, endpoint }: { label: string; endpoint: string }) {
           {result}
         </pre>
       )}
+    </div>
+  );
+}
+
+function LaunchPanel({ stats }: { stats?: { totalUsers: number; activeToday: number; totalPremium: number } | null }) {
+  const [copied, setCopied] = useState<string | null>(null);
+  const base = "https://www.spotidapp.com";
+
+  function copy(text: string, key: string) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    setCopied(key);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  const totalUsers = stats?.totalUsers ?? 0;
+  const activeToday = stats?.activeToday ?? 0;
+
+  const messages = [
+    {
+      platform: "Facebook / Nextdoor",
+      key: "facebook",
+      text: `I just launched something I've been building — SpotId.\n\nIt's a free app where you tag yourself with hashtags (your location, what you're wearing, what you're doing, what you have for sale) and people find you by searching those tags.\n\nLooking for a vintage lamp? Tag it. In Plano today? Tag it. Have handyman services? Tag it.\n\nCompletely free to use. Would love to see some Texas faces on there.\n\n👉 ${base}/signup`,
+    },
+    {
+      platform: "Twitter / X",
+      key: "twitter",
+      text: `I built a thing: ${base}\n\nYou tag yourself with hashtags describing where you are, what you have, what you're wearing.\n\nAnyone searching those tags finds you.\n\nIt's like being discoverable in real life, for free.\n\n#SpotId #DFW #Texas`,
+    },
+    {
+      platform: "Text message / DM",
+      key: "sms",
+      text: `Hey! I just launched an app called SpotId — you tag yourself (location, what you're wearing, items for sale) and people find you by searching. Totally free. Would love for you to be one of the first on it: ${base}/signup`,
+    },
+    {
+      platform: "Instagram caption",
+      key: "instagram",
+      text: `Something I've been quietly building is now live. 🏷️\n\nSpotId — tag yourself, get spotted.\n\nAdd hashtags for where you are, what you look like, what you have for sale. Anyone searching those tags finds you.\n\nLink in bio → ${base}`,
+    },
+    {
+      platform: "LinkedIn",
+      key: "linkedin",
+      text: `I quietly launched a project I've been building: SpotId (${base})\n\nThe idea: instead of algorithms deciding who sees you, you tag yourself with hashtags — your location, occupation, items for sale, services — and anyone searching those tags finds you directly.\n\nNo ads, no algorithm, no data selling. Just people being discoverable by choice.\n\nEarly days. Would love feedback from anyone who checks it out.`,
+    },
+  ];
+
+  const checklist = [
+    { done: false, item: "Complete your own profile fully (photo, bio, occupation, location, username)" },
+    { done: false, item: "Tag your day every day for 7 days straight to build your streak" },
+    { done: false, item: "Add at least 3 items to your Closet" },
+    { done: false, item: "Add at least 1 Work/Service listing" },
+    { done: false, item: "Post to Facebook and Nextdoor using the messages above" },
+    { done: false, item: "Text the invite link to 20 people personally" },
+    { done: false, item: "Set up Railway cron jobs (streak reminder, weekly digest)" },
+    { done: false, item: "Verify Stripe webhook at /api/webhooks/stripe" },
+    { done: false, item: "Check /api/db-status returns ok" },
+    { done: false, item: "Post your profile URL in 3 local Facebook groups" },
+  ];
+
+  return (
+    <div className="space-y-5">
+      {/* Stats snapshot */}
+      {stats && (
+        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 flex gap-6 flex-wrap">
+          <div>
+            <p className="text-2xl font-black text-indigo-600">{totalUsers}</p>
+            <p className="text-xs text-gray-500 font-medium">total members</p>
+          </div>
+          <div>
+            <p className="text-2xl font-black text-green-600">{activeToday}</p>
+            <p className="text-xs text-gray-500 font-medium">active today</p>
+          </div>
+          <div>
+            <p className="text-2xl font-black text-amber-500">{Math.max(0, 500 - totalUsers)}</p>
+            <p className="text-xs text-gray-500 font-medium">Founding Member spots left</p>
+          </div>
+        </div>
+      )}
+
+      {/* Launch checklist */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <h3 className="font-bold text-gray-900 mb-4">📋 Launch Checklist</h3>
+        <div className="space-y-2">
+          {checklist.map((item, i) => (
+            <label key={i} className="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" className="mt-0.5 accent-indigo-600" />
+              <span className="text-sm text-gray-700 group-has-[:checked]:line-through group-has-[:checked]:text-gray-400">
+                {item.item}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Ready-to-post messages */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <h3 className="font-bold text-gray-900">📣 Ready-to-Post Messages</h3>
+        <p className="text-sm text-gray-500">Copy and paste these into your social accounts today. Personalize as needed.</p>
+        <div className="space-y-4">
+          {messages.map((m) => (
+            <div key={m.key} className="bg-gray-50 rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">{m.platform}</span>
+                <button
+                  onClick={() => copy(m.text, m.key)}
+                  className="text-xs bg-indigo-600 text-white font-semibold px-3 py-1 rounded-lg hover:bg-indigo-700 transition"
+                >
+                  {copied === m.key ? "✓ Copied!" : "Copy"}
+                </button>
+              </div>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{m.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Key links */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <h3 className="font-bold text-gray-900 mb-3">🔗 Quick Links</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: "Your profile", href: "/profile" },
+            { label: "Daily tagging", href: "/daily" },
+            { label: "Invite page", href: "/invite" },
+            { label: "Upgrade page", href: "/upgrade" },
+            { label: "DB health check", href: "/api/db-status" },
+            { label: "Sitemap", href: "/sitemap.xml" },
+          ].map((l) => (
+            <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer"
+              className="text-sm text-indigo-600 hover:underline truncate">
+              {l.label} →
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

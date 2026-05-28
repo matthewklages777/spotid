@@ -29,6 +29,7 @@ interface UserProfile {
   instagram?: string; tiktok?: string; twitter?: string;
   profileViews: number; openToContact: boolean; createdAt: string;
   isPremium?: boolean;
+  isFoundingMember?: boolean;
   profilePhotos: ProfilePhoto[];
   dailyProfiles: DailyProfile[];
   closetItems: ClosetItem[];
@@ -621,6 +622,9 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-2xl font-bold text-gray-900">{profile.name || "Anonymous"}</h1>
+            {profile.isFoundingMember && (
+              <span title="Founding Member — joined SpotId in the first 500" className="text-amber-500 text-base" aria-label="Founding Member">🌟</span>
+            )}
             {profile.isPremium && (
               <span title="SpotId Premium member" className="text-blue-500 text-lg" aria-label="Verified premium">✅</span>
             )}
@@ -768,6 +772,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
           if (profile.workItems.length > 0)   earned.push({ emoji: "💼", label: "Pro", title: "Listed services on SpotId" });
           if (profile.image)                  earned.push({ emoji: "📸", label: "Photo", title: "Has a profile photo" });
           if (profile.instagram || profile.tiktok || profile.twitter) earned.push({ emoji: "🔗", label: "Linked", title: "Connected social media" });
+          if (profile.isFoundingMember) earned.unshift({ emoji: "🌟", label: "Founding Member", title: "Joined SpotId in the first 500 members" });
 
           if (earned.length === 0) return null;
           return (

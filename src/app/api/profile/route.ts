@@ -56,6 +56,14 @@ export async function GET(req: NextRequest) {
 
   const savedByCount = await prisma.savedProfile.count({ where: { savedUserId: userId } });
 
+  // Founding Member: determined by how many users existed at the time this user signed up
+  // First 500 users to complete onboarding earn the badge permanently
+  const FOUNDING_MEMBER_LIMIT = 500;
+  const usersBeforeThis = await prisma.user.count({
+    where: { createdAt: { lte: user.createdAt }, onboardingComplete: true },
+  });
+  const isFoundingMember = usersBeforeThis <= FOUNDING_MEMBER_LIMIT;
+
   // Compute daily streak and total days tagged
   const allDates = await prisma.dailyProfile.findMany({
     where: { userId },
@@ -97,7 +105,7 @@ export async function GET(req: NextRequest) {
   const completenessScore = completenessSteps.reduce((sum, s) => sum + (s.done ? s.points : 0), 0);
   const completenessItems = completenessSteps.filter((s) => !s.done).map((s) => ({ key: s.key, label: s.label, points: s.points }));
 
-  return Response.json({ ...user, savedByCount, streak, totalDays, completenessScore, completenessItems });
+  return Response.json({ ...user, savedByCount, streak, totalDays, completenessScore, completenessItems, isFoundingMember });
 }
 
 export async function PUT(req: NextRequest) {

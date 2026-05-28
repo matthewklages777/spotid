@@ -502,9 +502,14 @@ export default function DiscoverPage() {
                 </div>
 
                 {!data?.activeUsers.length ? (
-                  <p className="px-6 py-8 text-sm text-gray-400 italic text-center">
-                    No one has tagged yet today — be the first.
-                  </p>
+                  <div className="px-6 py-8 text-center">
+                    <p className="text-2xl mb-2">📅</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">No one has tagged yet today</p>
+                    <p className="text-xs text-gray-400 mb-3">Be the first — tag your location, look, or plans and show up here.</p>
+                    <Link href="/daily" className="text-xs bg-indigo-600 text-white font-bold px-4 py-2 rounded-full hover:bg-indigo-700 transition">
+                      Tag Today →
+                    </Link>
+                  </div>
                 ) : (
                   <>
                     <div className="divide-y divide-gray-50">
@@ -618,21 +623,43 @@ export default function DiscoverPage() {
                 </div>
               )}
 
-              {/* Empty state */}
+              {/* Empty state — shown when platform has no content yet */}
               {!data?.activeUsers.length && !data?.recentCloset.length && !data?.recentWork.length && !suggested.length && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center text-gray-400">
-                  <p className="text-5xl mb-4">🌱</p>
-                  <h2 className="text-lg font-bold text-gray-700 mb-2">SpotId is just getting started</h2>
-                  <p className="text-sm max-w-sm mx-auto">
-                    Invite friends, list your items, and tag your day — as the community grows, Discover fills up.
-                  </p>
-                  <div className="flex gap-3 justify-center mt-6">
-                    <Link href="/daily" className="bg-indigo-600 text-white text-sm px-5 py-2 rounded-full hover:bg-indigo-700 transition">
-                      Tag Today
-                    </Link>
-                    <Link href="/closet" className="bg-gray-100 text-gray-700 text-sm px-5 py-2 rounded-full hover:bg-gray-200 transition">
-                      List an Item
-                    </Link>
+                <div className="space-y-4">
+                  {/* Founding Member call-to-action */}
+                  <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-8 text-center">
+                    <p className="text-4xl mb-3">🌟</p>
+                    <h2 className="text-xl font-black text-gray-900 mb-2">Be a Founding Member</h2>
+                    <p className="text-sm text-gray-600 max-w-sm mx-auto mb-4">
+                      SpotId is brand new. The first 500 people to join earn a permanent
+                      Founding Member badge — visible on their profile forever.
+                    </p>
+                    <div className="flex gap-3 justify-center flex-wrap">
+                      <Link href="/daily" className="bg-indigo-600 text-white text-sm font-bold px-6 py-2.5 rounded-full hover:bg-indigo-700 transition">
+                        Tag Today →
+                      </Link>
+                      <Link href="/invite" className="bg-amber-500 text-white text-sm font-bold px-6 py-2.5 rounded-full hover:bg-amber-600 transition">
+                        Invite Friends
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* What this page will look like */}
+                  <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">This page will show…</p>
+                    <div className="grid sm:grid-cols-3 gap-4 text-center">
+                      {[
+                        { emoji: "👥", title: "People Active Today", desc: "Everyone who tagged their location, look, or plans today — searchable and discoverable." },
+                        { emoji: "🏪", title: "Recent Listings", desc: "Items people just listed in their Closet — vintage, antiques, everyday items for sale." },
+                        { emoji: "💼", title: "Services Available", desc: "Professionals and freelancers who tagged their skills and availability today." },
+                      ].map((c) => (
+                        <div key={c.title} className="space-y-2">
+                          <span className="text-3xl">{c.emoji}</span>
+                          <p className="font-bold text-sm text-gray-900">{c.title}</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">{c.desc}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
