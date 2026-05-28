@@ -32,11 +32,13 @@ export const metadata: Metadata = {
     description: "Tag yourself with hashtags and let the world find you. Search people, rare items, and services in real time.",
     type: "website",
     siteName: "SpotId",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "SpotId — Tag yourself. Get spotted." }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "SpotId — Tag yourself. Get spotted.",
     description: "Tag yourself with hashtags and let the world find you.",
+    images: ["/api/og"],
   },
 };
 
