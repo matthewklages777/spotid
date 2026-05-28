@@ -301,7 +301,7 @@ function HomeContent() {
             icon: "👤",
             color: "from-indigo-500 to-purple-600",
             title: "Find People",
-            learnMore: null,
+            learnMore: "/events",
             scenarios: [
               "Saw someone at a coffee shop and wish you'd said hello",
               "Want to know who's at a venue before you go",

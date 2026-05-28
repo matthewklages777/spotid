@@ -23,6 +23,7 @@ export function Footer() {
             <Link href="/leaderboard" className="hover:text-indigo-600 transition">Leaderboard</Link>
             <Link href="/antiques" className="hover:text-indigo-600 transition">Antiques &amp; Vintage</Link>
             <Link href="/freelancers" className="hover:text-indigo-600 transition">For Freelancers</Link>
+            <Link href="/events" className="hover:text-indigo-600 transition">Events &amp; Networking</Link>
             <Link href="/help" className="hover:text-indigo-600 transition">Help &amp; FAQ</Link>
             <Link href="/about" className="hover:text-indigo-600 transition">About</Link>
           </div>
