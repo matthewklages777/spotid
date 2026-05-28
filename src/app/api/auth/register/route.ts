@@ -69,10 +69,16 @@ export async function POST(req: NextRequest) {
     ...verificationEmail(name, verifyUrl),
   }).catch(() => {});
 
+  // Determine if this user is a Founding Member (first 500 onboarded users)
+  // At registration they haven't completed onboarding yet, but we optimistically badge based on sign-up order
+  const FOUNDING_LIMIT = 500;
+  const usersBeforeThis = await prisma.user.count({ where: { createdAt: { lte: user.createdAt } } }).catch(() => FOUNDING_LIMIT + 1);
+  const isFoundingMember = usersBeforeThis <= FOUNDING_LIMIT;
+
   // Also send welcome email (non-blocking)
   sendEmail({
     to: email,
-    ...welcomeEmail(name, `${base}/profile/${user.id}`),
+    ...welcomeEmail(name, `${base}/profile/${user.id}`, `${base}/daily`, isFoundingMember),
   }).catch(() => {});
 
   // Attribute referral if a valid code was provided

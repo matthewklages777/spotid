@@ -72,33 +72,63 @@ export function passwordResetEmail(resetUrl: string, name?: string): EmailTempla
   };
 }
 
-export function welcomeEmail(name: string, profileUrl: string): EmailTemplate {
+export function welcomeEmail(name: string, profileUrl: string, dailyUrl?: string, isFoundingMember?: boolean): EmailTemplate {
+  const tagTodayUrl = dailyUrl || profileUrl.replace(/\/profile\/.*/, "/daily");
   return {
-    subject: "Your SpotId is ready 🏷️",
+    subject: "You're in — tag your first day on SpotId 🏷️",
     html: `
-      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">
-        <h2 style="color:#4f46e5">Welcome to SpotId, ${name}!</h2>
-        <p>You&apos;re in. SpotId is the place where <strong>you tag yourself, and the world finds you.</strong></p>
-        <p>Here's how to get started:</p>
-        <ol style="color:#374151;line-height:1.8">
-          <li><strong>Set your Daily Profile</strong> — tag where you are, what you're wearing, what you're doing today</li>
-          <li><strong>Add to your Closet</strong> — list items you're selling with hashtags so buyers find you</li>
-          <li><strong>List your Work</strong> — showcase your services and let clients search you out</li>
-        </ol>
-        <p style="margin:28px 0">
-          <a href="${profileUrl}" style="background:#4f46e5;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">
-            View My Profile
-          </a>
-        </p>
-        <p style="color:#6b7280;font-size:13px">
-          Remember: SpotId is built on voluntary self-identification. Only tag information you're comfortable sharing publicly.
-          You can go private at any time.
-        </p>
-        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
-        <p style="color:#9ca3af;font-size:12px">SpotId · Tag yourself. Get spotted.</p>
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:0">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:32px 24px;text-align:center">
+          <p style="color:white;font-size:22px;font-weight:900;margin:0">SpotId</p>
+          <p style="color:#c7d2fe;font-size:13px;margin:6px 0 0">Tag yourself. Get spotted.</p>
+        </div>
+        <div style="padding:32px 24px;background:#fff">
+          ${isFoundingMember ? `
+          <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:24px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">🌟</span>
+            <div>
+              <p style="margin:0;font-weight:700;color:#78350f;font-size:14px">You're a Founding Member!</p>
+              <p style="margin:4px 0 0;color:#92400e;font-size:12px">You joined in the first 500 — your profile carries the 🌟 Founding Member badge forever.</p>
+            </div>
+          </div>` : ""}
+          <h1 style="color:#111827;font-size:20px;font-weight:800;margin:0 0 12px">Welcome, ${name}! 👋</h1>
+          <p style="color:#374151;font-size:14px;line-height:1.7;margin:0 0 20px">
+            You're on <strong>SpotId</strong> — the place where you tag yourself with hashtags and let the world find you.
+            Your next step is to <strong>tag today</strong> so people searching your hashtags can find you right now.
+          </p>
+          <p style="margin:28px 0;text-align:center">
+            <a href="${tagTodayUrl}" style="background:#4f46e5;color:white;padding:14px 32px;border-radius:50px;text-decoration:none;font-weight:800;font-size:15px;display:inline-block">
+              Tag Today →
+            </a>
+          </p>
+          <div style="border-top:1px solid #f3f4f6;padding-top:20px">
+            <p style="color:#6b7280;font-size:13px;margin:0 0 10px;font-weight:600">Also worth doing:</p>
+            <table style="width:100%;border-collapse:collapse">
+              ${[
+                ["👤", "Complete your profile", "Add a photo, bio, and occupation so people know who you are."],
+                ["🛍️", "Add to your Closet", "List items for sale — buyers find you by hashtag, not algorithm."],
+                ["💼", "List your Work", "Offer services and let clients search for you by skill."],
+              ].map(([icon, title, desc]) => `
+              <tr>
+                <td style="padding:8px 0;vertical-align:top;width:28px;font-size:18px">${icon}</td>
+                <td style="padding:8px 12px;vertical-align:top">
+                  <p style="margin:0;font-weight:700;color:#111827;font-size:13px">${title}</p>
+                  <p style="margin:3px 0 0;color:#6b7280;font-size:12px">${desc}</p>
+                </td>
+              </tr>`).join("")}
+            </table>
+          </div>
+          <div style="margin-top:24px;text-align:center">
+            <a href="${profileUrl}" style="color:#4f46e5;font-size:13px;text-decoration:none">View my profile →</a>
+          </div>
+        </div>
+        <div style="background:#f9fafb;padding:16px 24px;text-align:center;border-top:1px solid #f3f4f6">
+          <p style="color:#9ca3af;font-size:11px;margin:0">SpotId · Tag yourself. Get spotted.</p>
+          <p style="color:#d1d5db;font-size:10px;margin:4px 0 0">Only tag information you're comfortable sharing publicly. You can go private at any time.</p>
+        </div>
       </div>
     `,
-    text: `Welcome to SpotId, ${name}!\n\nYou're in. Here's how to get started:\n1. Set your Daily Profile\n2. Add to your Closet\n3. List your Work\n\nView your profile: ${profileUrl}\n\nSpotId — Tag yourself. Get spotted.`,
+    text: `Welcome to SpotId, ${name}!\n\n${isFoundingMember ? "🌟 You're a Founding Member — you joined in the first 500!\n\n" : ""}Tag your first day now:\n${tagTodayUrl}\n\nWhat to do next:\n1. Tag Today — go live right now\n2. Complete your profile — add a photo, bio, and occupation\n3. Add to your Closet — list items for sale\n4. List your Work — offer services by hashtag\n\nView your profile: ${profileUrl}\n\nSpotId — Tag yourself. Get spotted.`,
   };
 }
 
