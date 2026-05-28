@@ -301,6 +301,7 @@ function HomeContent() {
             icon: "👤",
             color: "from-indigo-500 to-purple-600",
             title: "Find People",
+            learnMore: null,
             scenarios: [
               "Saw someone at a coffee shop and wish you'd said hello",
               "Want to know who's at a venue before you go",
@@ -311,6 +312,7 @@ function HomeContent() {
             icon: "🏺",
             color: "from-pink-500 to-orange-400",
             title: "Find Anything",
+            learnMore: "/antiques",
             scenarios: [
               "Hunting a rare antique you saw 30 years ago in Gruene, TX",
               "Looking for a specific vintage item, color, or era",
@@ -321,6 +323,7 @@ function HomeContent() {
             icon: "💼",
             color: "from-emerald-500 to-teal-600",
             title: "Find Services",
+            learnMore: "/freelancers",
             scenarios: [
               "Need a designer, plumber, or caterer in your area",
               "Looking for professionals with a specific specialty",
@@ -342,6 +345,13 @@ function HomeContent() {
                   </li>
                 ))}
               </ul>
+              {card.learnMore && (
+                <div className="mt-4 pt-3 border-t border-gray-50">
+                  <Link href={card.learnMore} className="text-xs text-indigo-600 hover:underline font-medium">
+                    Learn how it works →
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         ))}
