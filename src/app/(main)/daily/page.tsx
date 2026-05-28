@@ -412,23 +412,33 @@ export default function DailyPage() {
           </Link>
         )}
 
-        {/* Share today's profile — shown after saving */}
+        {/* Post-save actions */}
         {saved && userId && (
-          <button
-            onClick={() => {
-              const base = window.location.origin;
-              const profilePath = `/profile/${userId}`;
-              const shareText = `I'm live on SpotId today with ${hashtags.length} tag${hashtags.length !== 1 ? "s" : ""}: ${hashtags.slice(0, 4).map((t) => `#${t}`).join(" ")}`;
-              if (navigator.share) {
-                navigator.share({ title: "SpotId — I'm live today", text: shareText, url: base + profilePath }).catch(() => {});
-              } else {
-                navigator.clipboard.writeText(`${shareText}\n${base + profilePath}`).then(() => alert("Link copied!")).catch(() => {});
-              }
-            }}
-            className="flex items-center gap-2 mt-1 text-sm text-gray-500 hover:text-gray-700 transition"
-          >
-            <span>↗</span> Share today&apos;s profile
-          </button>
+          <div className="flex items-center gap-4 mt-1 flex-wrap">
+            {hashtags.length > 0 && (
+              <Link
+                href={`/search?q=%23${encodeURIComponent(hashtags[0])}`}
+                className="flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-700 font-medium transition"
+              >
+                <span>🔍</span> See yourself in search
+              </Link>
+            )}
+            <button
+              onClick={() => {
+                const base = window.location.origin;
+                const profilePath = `/profile/${userId}`;
+                const shareText = `I'm live on SpotId today with ${hashtags.length} tag${hashtags.length !== 1 ? "s" : ""}: ${hashtags.slice(0, 4).map((t) => `#${t}`).join(" ")}`;
+                if (navigator.share) {
+                  navigator.share({ title: "SpotId — I'm live today", text: shareText, url: base + profilePath }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(`${shareText}\n${base + profilePath}`).then(() => alert("Link copied!")).catch(() => {});
+                }
+              }}
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition"
+            >
+              <span>↗</span> Share today&apos;s profile
+            </button>
+          </div>
         )}
       </div>
 
