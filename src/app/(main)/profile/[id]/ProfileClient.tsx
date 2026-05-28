@@ -1732,6 +1732,31 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
           </div>
         )}
       </div>
+
+      {/* Logged-out visitor CTA — shown when viewing someone else's profile while not signed in */}
+      {!myId && profile && (
+        <div className="mt-6 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-7 text-white text-center">
+          <p className="text-2xl mb-2">🏷️</p>
+          <h3 className="font-black text-lg mb-1">Create your own SpotId profile — free</h3>
+          <p className="text-indigo-200 text-sm mb-5 max-w-sm mx-auto leading-relaxed">
+            Tag yourself every day and let people find you by hashtag. List items. Offer services. Be discoverable.
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link
+              href="/signup"
+              className="bg-white text-indigo-700 font-bold px-7 py-2.5 rounded-full hover:bg-indigo-50 transition text-sm shadow-sm"
+            >
+              Join SpotId Free →
+            </Link>
+            <Link
+              href="/about"
+              className="bg-indigo-500 text-white font-semibold px-7 py-2.5 rounded-full hover:bg-indigo-400 transition text-sm"
+            >
+              Learn More
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

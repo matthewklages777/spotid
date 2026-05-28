@@ -310,6 +310,22 @@ export default function WorkItemPage() {
         <span className="text-xs text-indigo-600 hover:underline font-medium flex-shrink-0">View Profile →</span>
       </div>
 
+      {/* Logged-out visitor CTA */}
+      {!myId && (
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="font-bold text-gray-900">Offer your own services on SpotId?</p>
+            <p className="text-sm text-gray-500 mt-0.5">Create a free profile and list what you do. Clients find you by hashtag — no monthly fee required.</p>
+          </div>
+          <Link
+            href="/signup"
+            className="flex-shrink-0 bg-emerald-600 text-white font-semibold px-6 py-2.5 rounded-full hover:bg-emerald-700 transition text-sm whitespace-nowrap"
+          >
+            Join Free →
+          </Link>
+        </div>
+      )}
+
       {/* Related services */}
       {related.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

@@ -319,6 +319,22 @@ export default function ClosetItemPage() {
         <span className="text-xs text-indigo-600 hover:underline font-medium flex-shrink-0">View Profile →</span>
       </div>
 
+      {/* Logged-out visitor CTA */}
+      {!myId && (
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="font-bold text-gray-900">Want to sell on SpotId?</p>
+            <p className="text-sm text-gray-500 mt-0.5">List your items for free. Buyers find you by hashtag — no algorithm, no fees.</p>
+          </div>
+          <Link
+            href="/signup"
+            className="flex-shrink-0 bg-indigo-600 text-white font-semibold px-6 py-2.5 rounded-full hover:bg-indigo-700 transition text-sm whitespace-nowrap"
+          >
+            Join Free →
+          </Link>
+        </div>
+      )}
+
       {/* Related items */}
       {related.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
