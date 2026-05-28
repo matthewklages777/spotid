@@ -260,6 +260,40 @@ function HomeContent() {
         )}
       </div>
 
+      {/* Founding Member urgency strip — logged-out only */}
+      {!session && (
+        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5">
+          <div className="flex items-start gap-4">
+            <span className="text-4xl flex-shrink-0">🌟</span>
+            <div>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 className="font-black text-gray-900 text-lg">Become a Founding Member</h3>
+                {platformStats && platformStats.totalUsers < 500 && (
+                  <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    {Math.max(0, 500 - platformStats.totalUsers)} spots left
+                  </span>
+                )}
+                {platformStats && platformStats.totalUsers >= 500 && (
+                  <span className="bg-gray-400 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    Closed
+                  </span>
+                )}
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                The first 500 members earn a permanent 🌟 Founding Member badge on their profile — forever.
+                Be part of the story from day one.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/signup"
+            className="flex-shrink-0 bg-amber-500 text-white font-bold px-7 py-3 rounded-full hover:bg-amber-600 transition shadow-sm whitespace-nowrap text-sm"
+          >
+            Claim Your Spot →
+          </Link>
+        </div>
+      )}
+
       {/* Use cases */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {[
@@ -313,6 +347,70 @@ function HomeContent() {
         ))}
       </div>
 
+      {/* Platform preview mockup — logged-out, shows what SpotId looks like with real members */}
+      {!session && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-bold text-gray-900">👀 Who&apos;s on SpotId</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Here&apos;s what a typical day on SpotId looks like</p>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {[
+              {
+                name: "Alex Rivera",
+                occupation: "Graphic Designer",
+                location: "Austin, TX",
+                tags: ["design", "Austin", "openToWork", "logoDesign", "branding"],
+                color: "from-indigo-400 to-purple-500",
+                initial: "A",
+              },
+              {
+                name: "Morgan Lee",
+                occupation: "Vintage Reseller",
+                location: "Nashville, TN",
+                tags: ["vintage", "thrifted", "Nashville", "70sStyle", "forSale"],
+                color: "from-pink-400 to-orange-400",
+                initial: "M",
+              },
+              {
+                name: "Jordan Kim",
+                occupation: "Personal Trainer",
+                location: "Miami, FL",
+                tags: ["fitness", "Miami", "personalTrainer", "morningWorkout", "hiit"],
+                color: "from-emerald-400 to-teal-500",
+                initial: "J",
+              },
+            ].map((person) => (
+              <div key={person.name} className="flex items-center gap-4 px-6 py-4">
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${person.color} flex items-center justify-center font-bold text-white text-sm flex-shrink-0`}>
+                  {person.initial}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-gray-900 text-sm">{person.name}</p>
+                    <p className="text-xs text-gray-400">{person.occupation} · {person.location}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {person.tags.map((tag) => (
+                      <span key={tag} className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <span className="text-xs text-green-500 font-semibold flex-shrink-0 hidden sm:block">● Today</span>
+              </div>
+            ))}
+          </div>
+          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-500 mb-2">Tag yourself every day and show up when people search your hashtags.</p>
+            <Link href="/signup" className="text-sm font-bold text-indigo-600 hover:text-indigo-700">
+              Create your free profile →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* How it works */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">How SpotId Works</h2>
@@ -361,6 +459,30 @@ function HomeContent() {
           <strong className="text-gray-900">Tag what you have. Find what you need.</strong>
         </p>
       </div>
+
+      {/* Bottom CTA for logged-out users who scrolled this far */}
+      {!session && (
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-8 text-center text-white">
+          <h2 className="text-2xl font-black mb-2">Ready to get spotted?</h2>
+          <p className="text-indigo-200 mb-6 text-sm leading-relaxed max-w-lg mx-auto">
+            Join free in under 60 seconds. Tag your day. List your items. Let the world find you.
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link
+              href="/signup"
+              className="bg-white text-indigo-700 font-bold px-8 py-3 rounded-full hover:bg-indigo-50 transition shadow-sm text-sm"
+            >
+              Create Free Account →
+            </Link>
+            <Link
+              href="/discover"
+              className="bg-indigo-500 text-white font-bold px-8 py-3 rounded-full hover:bg-indigo-400 transition text-sm"
+            >
+              Browse Members
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Recent listings preview (social proof for all visitors) */}
       {recentListings.length > 0 && (
