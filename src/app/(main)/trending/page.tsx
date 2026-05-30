@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 interface TagCount { name: string; count: number }
 
@@ -56,7 +57,7 @@ export default function TrendingPage() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 px-8 py-7">
-          <h1 className="text-2xl font-bold text-white">Trending on SpotId</h1>
+          <h1 className="text-2xl font-bold text-white">Trending on <Brand /></h1>
           <p className="text-pink-200 text-sm mt-1">What people are tagging right now</p>
         </div>
       </div>

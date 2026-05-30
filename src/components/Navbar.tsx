@@ -261,7 +261,7 @@ export function Navbar() {
       <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-horizontal.svg" alt="SpotId" height={36} style={{ height: 36, width: "auto" }} />
+          <img src="/logo-horizontal.svg" alt="SpotId" height={48} style={{ height: 48, width: "auto" }} />
         </Link>
 
         {/* Desktop links */}

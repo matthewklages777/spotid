@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 export const metadata: Metadata = {
   title: "Get Discovered as a Freelancer by Hashtag — SpotId",
@@ -85,7 +86,7 @@ export default function FreelancersPage() {
           </ul>
         </div>
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 space-y-3">
-          <p className="text-xl font-bold text-emerald-700">The SpotId way</p>
+          <p className="text-xl font-bold text-emerald-700">The <Brand /> way</p>
           <ul className="space-y-2">
             {[
               "List your services for free — forever",

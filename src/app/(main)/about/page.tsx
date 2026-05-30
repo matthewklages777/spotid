@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Brand } from "@/components/Brand";
 
 export const metadata: Metadata = {
   title: "About SpotId",
@@ -18,7 +19,7 @@ export default function AboutPage() {
       {/* Hero */}
       <div className="text-center space-y-4">
         <p className="text-5xl">🏷️</p>
-        <h1 className="text-4xl font-black text-gray-900">About SpotId</h1>
+        <h1 className="text-4xl font-black text-gray-900">About <Brand /></h1>
         <p className="text-xl text-gray-500 leading-relaxed max-w-xl mx-auto">
           Tag yourself with hashtags and let the world find you — people, antiques, collectibles, and services, all searchable in real time.
         </p>
@@ -98,7 +99,7 @@ export default function AboutPage() {
 
       {/* Built for */}
       <div className="bg-gray-900 rounded-2xl p-8 text-white space-y-4">
-        <h2 className="text-2xl font-bold">Who Is SpotId Built For?</h2>
+        <h2 className="text-2xl font-bold">Who Is <Brand /> Built For?</h2>
         <div className="grid sm:grid-cols-3 gap-4">
           {[
             { emoji: "🎨", label: "Individuals", desc: "People who want to be found by what they're doing today — events, hobbies, moods, interests." },
@@ -117,7 +118,7 @@ export default function AboutPage() {
       {/* Premium */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-8 text-white text-center space-y-4">
         <p className="text-4xl">✨</p>
-        <h2 className="text-2xl font-bold">Go Further with SpotId Premium</h2>
+        <h2 className="text-2xl font-bold">Go Further with <Brand /> Premium</h2>
         <p className="text-indigo-200 max-w-lg mx-auto text-sm leading-relaxed">
           For $4.99/month, unlock viewer identity (see exactly who visited your profile),
           90-day analytics, priority placement in search and discover, a verified ✅ badge,
@@ -142,7 +143,7 @@ export default function AboutPage() {
             href="/signup"
             className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition text-sm"
           >
-            Join SpotId — Free
+            Join <Brand /> — Free
           </Link>
           <Link
             href="/search"

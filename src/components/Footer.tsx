@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 export function Footer() {
   return (
@@ -6,7 +7,7 @@ export function Footer() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
-            <p className="font-bold text-indigo-600">SpotId</p>
+            <p className="font-bold text-indigo-600"><Brand /></p>
             <p className="text-xs text-gray-400 mt-0.5">
               Tag yourself. Get spotted.
             </p>
@@ -42,7 +43,7 @@ export function Footer() {
         </div>
 
         <p className="text-center text-xs text-gray-300 mt-4">
-          © {new Date().getFullYear()} SpotId. All rights reserved.
+          © {new Date().getFullYear()} <Brand />. All rights reserved.
         </p>
       </div>
     </footer>

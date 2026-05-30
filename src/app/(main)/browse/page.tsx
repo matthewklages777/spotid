@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 type BrowseType = "closet" | "work";
 
@@ -93,7 +94,7 @@ function BrowseContent() {
       {/* Header */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-6">
-          <h1 className="text-2xl font-bold text-white">Browse SpotId</h1>
+          <h1 className="text-2xl font-bold text-white">Browse <Brand /></h1>
           <p className="text-indigo-200 text-sm mt-0.5">
             Explore items for sale and services from the SpotId community
           </p>

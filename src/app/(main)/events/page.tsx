@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 export const metadata: Metadata = {
   title: "Find People at Events & Concerts by Hashtag — SpotId",

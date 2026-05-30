@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 export const metadata: Metadata = {
   title: "Find Antiques & Vintage Items by Hashtag — SpotId",
@@ -112,7 +113,7 @@ export default function AntiquesPage() {
             <p className="text-gray-700 leading-relaxed">
               Somewhere out there, someone has that lamp — or one just like it. They tagged it on SpotId.
               You find each other through hashtags, not through luck.{" "}
-              <strong className="text-gray-900">That&apos;s exactly what SpotId is for.</strong>
+              <strong className="text-gray-900">That&apos;s exactly what <Brand /> is for.</strong>
             </p>
           </div>
         </div>
@@ -262,7 +263,7 @@ export default function AntiquesPage() {
             href="/signup"
             className="bg-indigo-600 text-white px-8 py-3.5 rounded-full font-bold text-base hover:bg-indigo-700 transition"
           >
-            Join SpotId Free
+            Join <Brand /> Free
           </Link>
         </div>
         <div className="flex gap-4 justify-center text-sm text-gray-400 pt-2 flex-wrap">

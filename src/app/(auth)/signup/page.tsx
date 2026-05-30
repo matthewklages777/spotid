@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 function SignUpContent() {
   const router = useRouter();
@@ -63,7 +64,7 @@ function SignUpContent() {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-7 text-center">
-          <h1 className="text-3xl font-black text-white">SpotId</h1>
+          <h1 className="text-3xl font-black text-white"><Brand /></h1>
           <p className="text-indigo-200 text-sm mt-1">
             {referralCode ? "You were invited! Create your free account" : "Create your free account"}
           </p>
@@ -78,7 +79,7 @@ function SignUpContent() {
           <div className="bg-green-50 border-b border-green-100 px-8 py-3 flex items-center gap-2">
             <span className="text-green-600 text-lg">🎁</span>
             <p className="text-sm text-green-800 font-semibold">
-              Referred by a friend — welcome to SpotId!
+              Referred by a friend — welcome to <Brand />!
             </p>
           </div>
         )}

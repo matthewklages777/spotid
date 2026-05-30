@@ -1,6 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 import { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -178,7 +179,7 @@ function HomeContent() {
               value={searchQ}
               onChange={(e) => handleSearchQueryChange(e.target.value)}
               onBlur={() => setTimeout(() => setSuggestions([]), 200)}
-              placeholder="Search anything — Plano, vintage lamp, designer…"
+              placeholder="Search anything — Texas, vintage lamp, designer…"
               className="w-full pl-9 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm shadow-sm"
             />
             {suggestions.length > 0 && (
@@ -208,7 +209,7 @@ function HomeContent() {
             <>
               <Link href="/signup"
                 className="bg-indigo-600 text-white px-7 py-3 rounded-full font-semibold text-lg hover:bg-indigo-700 transition shadow-sm">
-                Join SpotId Free
+                Join <Brand /> Free
               </Link>
               <Link href="/signin"
                 className="bg-white text-gray-700 border-2 border-gray-200 px-7 py-3 rounded-full font-semibold text-lg hover:border-indigo-400 transition">
@@ -361,7 +362,7 @@ function HomeContent() {
       {!session && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="font-bold text-gray-900">👀 Who&apos;s on SpotId</h2>
+            <h2 className="font-bold text-gray-900">👀 Who&apos;s on <Brand /></h2>
             <p className="text-xs text-gray-400 mt-0.5">Here&apos;s what a typical day on SpotId looks like</p>
           </div>
           <div className="divide-y divide-gray-50">
@@ -423,7 +424,7 @@ function HomeContent() {
 
       {/* How it works */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">How SpotId Works</h2>
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">How <Brand /> Works</h2>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
           {[
             { step: "1", icon: "✍️", title: "Tag Your Day", desc: "Every day, tag where you are, what you're wearing, what you have, what you offer." },

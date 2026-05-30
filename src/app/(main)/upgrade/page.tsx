@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 // Replace these with real member quotes once you have them.
 // Each quote needs: quote, name, occupation, location, star rating
@@ -132,7 +133,7 @@ function UpgradeContent() {
     return (
       <div className="max-w-2xl mx-auto py-16 px-4 text-center space-y-6">
         <p className="text-6xl">✅</p>
-        <h1 className="text-3xl font-black text-gray-900">You&apos;re SpotId Premium</h1>
+        <h1 className="text-3xl font-black text-gray-900">You&apos;re <Brand /> Premium</h1>
         <p className="text-gray-500">All premium features are active on your account.</p>
         <Link href={`/profile/${userId}`}
           className="inline-block bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition">
@@ -148,7 +149,7 @@ function UpgradeContent() {
       {success && (
         <div className="bg-green-50 border border-green-200 rounded-2xl px-6 py-4 text-center">
           <p className="text-2xl mb-1">🎉</p>
-          <p className="font-bold text-green-800">Welcome to SpotId Premium!</p>
+          <p className="font-bold text-green-800">Welcome to <Brand /> Premium!</p>
           {polling ? (
             <p className="text-sm text-green-600 mt-1 animate-pulse">Activating your account…</p>
           ) : (

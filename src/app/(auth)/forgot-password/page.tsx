@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { Brand } from "@/components/Brand";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 px-4 py-12">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-7 text-center">
-          <h1 className="text-3xl font-black text-white">SpotId</h1>
+          <h1 className="text-3xl font-black text-white"><Brand /></h1>
           <p className="text-indigo-200 text-sm mt-1">Reset your password</p>
         </div>
 

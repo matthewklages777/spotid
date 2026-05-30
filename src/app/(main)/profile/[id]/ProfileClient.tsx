@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ReportModal } from "@/components/ReportModal";
+import { Brand } from "@/components/Brand";
 import { HashtagInput } from "@/components/HashtagInput";
 
 interface ProfilePhoto { id: string; url: string; caption?: string }
@@ -1737,7 +1738,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
       {!myId && profile && (
         <div className="mt-6 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-7 text-white text-center">
           <p className="text-2xl mb-2">🏷️</p>
-          <h3 className="font-black text-lg mb-1">Create your own SpotId profile — free</h3>
+          <h3 className="font-black text-lg mb-1">Create your own <Brand /> profile — free</h3>
           <p className="text-indigo-200 text-sm mb-5 max-w-sm mx-auto leading-relaxed">
             Tag yourself every day and let people find you by hashtag. List items. Offer services. Be discoverable.
           </p>
@@ -1746,7 +1747,7 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
               href="/signup"
               className="bg-white text-indigo-700 font-bold px-7 py-2.5 rounded-full hover:bg-indigo-50 transition text-sm shadow-sm"
             >
-              Join SpotId Free →
+              Join <Brand /> Free →
             </Link>
             <Link
               href="/about"
