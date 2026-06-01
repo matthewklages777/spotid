@@ -11,7 +11,9 @@ function SignUpContent() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [dob, setDob] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobDay, setDobDay] = useState("");
+  const [dobYear, setDobYear] = useState("");
   const [tos, setTos] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,10 +31,26 @@ function SignUpContent() {
     }).catch(() => {});
   }, []);
 
-  // Calculate max date (must be 18+)
-  const maxDob = new Date();
-  maxDob.setFullYear(maxDob.getFullYear() - 18);
-  const maxDobStr = maxDob.toISOString().split("T")[0];
+  // Build dob string from parts (YYYY-MM-DD)
+  const dob = dobYear && dobMonth && dobDay
+    ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
+    : "";
+
+  const currentYear = new Date().getFullYear();
+  const maxYear = currentYear - 18;
+  const years = Array.from({ length: maxYear - 1919 }, (_, i) => maxYear - i); // newest first
+  const months = [
+    { value: "1", label: "January" }, { value: "2", label: "February" },
+    { value: "3", label: "March" }, { value: "4", label: "April" },
+    { value: "5", label: "May" }, { value: "6", label: "June" },
+    { value: "7", label: "July" }, { value: "8", label: "August" },
+    { value: "9", label: "September" }, { value: "10", label: "October" },
+    { value: "11", label: "November" }, { value: "12", label: "December" },
+  ];
+  const daysInMonth = dobMonth && dobYear
+    ? new Date(Number(dobYear), Number(dobMonth), 0).getDate()
+    : 31;
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -123,9 +141,29 @@ function SignUpContent() {
                 Date of Birth
                 <span className="ml-2 text-xs font-normal text-gray-400">You must be 18 or older</span>
               </label>
-              <input type="date" value={dob} onChange={(e) => setDob(e.target.value)}
-                required max={maxDobStr}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
+              <div className="grid grid-cols-3 gap-2">
+                <select value={dobMonth} onChange={(e) => setDobMonth(e.target.value)}
+                  className="px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
+                  <option value="">Month</option>
+                  {months.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+                <select value={dobDay} onChange={(e) => setDobDay(e.target.value)}
+                  className="px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
+                  <option value="">Day</option>
+                  {days.map((d) => (
+                    <option key={d} value={String(d)}>{d}</option>
+                  ))}
+                </select>
+                <select value={dobYear} onChange={(e) => setDobYear(e.target.value)}
+                  className="px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
+                  <option value="">Year</option>
+                  {years.map((y) => (
+                    <option key={y} value={String(y)}>{y}</option>
+                  ))}
+                </select>
+              </div>
               <p className="text-xs text-gray-400 mt-1">
                 Your date of birth is used solely to verify your age and is never shown publicly.
               </p>
