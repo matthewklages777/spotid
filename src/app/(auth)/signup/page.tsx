@@ -36,8 +36,9 @@ function SignUpContent() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!tos) {
-      setError("You must accept the Terms of Service to continue.");
+    const missing = getMissingFields();
+    if (missing.length > 0) {
+      setError("Please complete the following: " + missing.join(", ") + ".");
       return;
     }
     setLoading(true);
@@ -57,7 +58,15 @@ function SignUpContent() {
     router.push("/onboarding");
   }
 
-  const canSubmit = name && email && password.length >= 8 && dob && tos;
+  function getMissingFields() {
+    const missing = [];
+    if (!name) missing.push("Full name");
+    if (!email) missing.push("Email");
+    if (!password || password.length < 8) missing.push("Password (minimum 8 characters)");
+    if (!dob) missing.push("Date of birth");
+    if (!tos) missing.push("You must agree to the Terms of Service");
+    return missing;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 px-4 py-12">
@@ -148,8 +157,8 @@ function SignUpContent() {
               </div>
             )}
 
-            <button type="submit" disabled={loading || !canSubmit}
-              className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-40 transition text-sm">
+            <button type="submit" disabled={loading}
+              className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-60 transition text-sm">
               {loading ? "Creating account…" : "Create Account"}
             </button>
           </form>
