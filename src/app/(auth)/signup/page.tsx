@@ -61,19 +61,28 @@ function SignUpContent() {
     }
     setLoading(true);
     setError("");
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, dob, referralCode: referralCode || undefined }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Registration failed");
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, dob, referralCode: referralCode || undefined }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Registration failed");
+        setLoading(false);
+        return;
+      }
+      await signIn("credentials", { email, password, redirect: false });
+      router.push("/onboarding");
+    } catch {
+      setError("Something went wrong — please try again.");
       setLoading(false);
-      return;
     }
-    await signIn("credentials", { email, password, redirect: false });
-    router.push("/onboarding");
   }
 
   function getMissingFields() {
