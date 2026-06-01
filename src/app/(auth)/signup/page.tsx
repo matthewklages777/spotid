@@ -122,20 +122,22 @@ function SignUpContent() {
               </p>
             </div>
 
-            <div className="pt-1">
-              <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
+            <div className="pt-1 space-y-2">
+              <p className="text-xs text-gray-500 px-1">
+                Please read before agreeing:{" "}
+                <Link href="/terms" target="_blank" className="text-indigo-600 font-semibold hover:underline">Terms of Service</Link>
+                {" · "}
+                <Link href="/privacy" target="_blank" className="text-indigo-600 font-semibold hover:underline">Privacy Policy</Link>
+                {" · "}
+                <Link href="/guidelines" target="_blank" className="text-indigo-600 font-semibold hover:underline">Community Guidelines</Link>
+              </p>
+              <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${
                 tos ? "border-indigo-300 bg-indigo-50" : "border-gray-200 hover:border-gray-300"
               }`}>
                 <input type="checkbox" checked={tos} onChange={(e) => setTos(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0" />
-                <span className="text-sm text-gray-700">
-                  I have read and agree to the{" "}
-                  <Link href="/terms" target="_blank" className="text-indigo-600 font-semibold hover:underline">Terms of Service</Link>
-                  {", "}
-                  <Link href="/privacy" target="_blank" className="text-indigo-600 font-semibold hover:underline">Privacy Policy</Link>
-                  {", and "}
-                  <Link href="/guidelines" target="_blank" className="text-indigo-600 font-semibold hover:underline">Community Guidelines</Link>.
-                  I understand that my Daily Profile and listings are publicly visible and searchable.
+                  className="w-4 h-4 accent-indigo-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700 font-medium">
+                  I have read and agree to the Terms of Service, Privacy Policy, and Community Guidelines.
                 </span>
               </label>
             </div>
