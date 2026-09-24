@@ -88,7 +88,7 @@ export function CityscapeCanvas() {
     <canvas
       ref={canvasRef}
       width={1200}
-      height={160}
+      height={280}
       className="w-full block"
       style={{ display: "block" }}
       aria-hidden="true"
