@@ -2,6 +2,7 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
+import { CityscapeCanvas } from "@/components/CityscapeCanvas";
 import { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -155,6 +156,11 @@ function HomeContent() {
           </Link>
         </div>
       )}
+
+      {/* Cityscape banner */}
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden rounded-2xl">
+        <CityscapeCanvas />
+      </div>
 
       {/* Hero */}
       <div className="text-center py-12 px-4">
