@@ -39,9 +39,12 @@ export async function GET() {
       );
       for (const row of tables) {
         const t = String(row.name);
+        if (t === "_migrations") continue;
         log.push(`Dropping: ${t}`);
         await client.execute(`DROP TABLE IF EXISTS "${t}"`);
       }
+      await client.execute("DELETE FROM _migrations");
+      log.push("Reset complete — will reapply all migrations");
     }
 
     const { rows } = await client.execute("SELECT name FROM _migrations");
