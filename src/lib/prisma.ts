@@ -14,8 +14,12 @@ function resolveDbUrl(): string {
 }
 
 function createPrismaClient() {
-  // Prisma 7: PrismaLibSql takes the config object directly, not a createClient instance
-  const adapter = new PrismaLibSql({ url: resolveDbUrl() });
+  const url = resolveDbUrl();
+  const authToken = process.env["TURSO_AUTH_TOKEN"];
+  // Prisma 7: PrismaLibSql takes the config object directly
+  const adapter = authToken
+    ? new PrismaLibSql({ url, authToken })
+    : new PrismaLibSql({ url });
   return new PrismaClient({ adapter });
 }
 

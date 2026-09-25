@@ -1,10 +1,15 @@
 #!/bin/sh
 
-# Ensure the data directory exists (Railway volume may not pre-create it)
-mkdir -p /data
-
-# Default DATABASE_URL to the volume path if not explicitly set
-export DATABASE_URL="${DATABASE_URL:-file:/data/spotid.db}"
+# If TURSO_DATABASE_URL is set, use Turso (remote libSQL) — otherwise fall back to local SQLite volume
+if [ -n "$TURSO_DATABASE_URL" ]; then
+  export DATABASE_URL="$TURSO_DATABASE_URL"
+  echo "Using Turso database: $DATABASE_URL"
+else
+  # Ensure the local volume data directory exists
+  mkdir -p /data
+  export DATABASE_URL="${DATABASE_URL:-file:/data/spotid.db}"
+  echo "Using local SQLite: $DATABASE_URL"
+fi
 
 echo "=== SpotId Startup ==="
 echo "DATABASE_URL: $DATABASE_URL"
