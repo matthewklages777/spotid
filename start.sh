@@ -15,9 +15,13 @@ echo "=== SpotId Startup ==="
 echo "DATABASE_URL: $DATABASE_URL"
 echo "NODE_ENV: $NODE_ENV"
 
-# Run Prisma migrations — log failure but don't abort so we can see the error
+# Run Prisma migrations — embed authToken in URL for remote Turso connections
 echo "Running database migrations..."
-npx prisma migrate deploy
+if [ -n "$TURSO_AUTH_TOKEN" ] && echo "$DATABASE_URL" | grep -q "^libsql://"; then
+  DATABASE_URL="${DATABASE_URL}?authToken=${TURSO_AUTH_TOKEN}" npx prisma migrate deploy
+else
+  npx prisma migrate deploy
+fi
 MIGRATE_EXIT=$?
 if [ $MIGRATE_EXIT -ne 0 ]; then
   echo "WARNING: prisma migrate deploy exited with code $MIGRATE_EXIT"
