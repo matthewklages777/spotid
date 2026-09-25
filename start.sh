@@ -15,10 +15,10 @@ echo "=== SpotId Startup ==="
 echo "DATABASE_URL: $DATABASE_URL"
 echo "NODE_ENV: $NODE_ENV"
 
-# Run Prisma migrations — embed authToken in URL for remote Turso connections
+# Run migrations — custom runner for remote Turso, prisma migrate for local SQLite
 echo "Running database migrations..."
-if [ -n "$TURSO_AUTH_TOKEN" ] && echo "$DATABASE_URL" | grep -q "^libsql://"; then
-  DATABASE_URL="${DATABASE_URL}?authToken=${TURSO_AUTH_TOKEN}" npx prisma migrate deploy
+if echo "$DATABASE_URL" | grep -q "^libsql://"; then
+  node scripts/migrate-turso.mjs
 else
   npx prisma migrate deploy
 fi
