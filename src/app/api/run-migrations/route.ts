@@ -24,6 +24,26 @@ export async function GET() {
     `);
     log.push("_migrations table ready");
 
+    // If User table doesn't exist, the DB is in a broken partial state — reset everything
+    let userExists = false;
+    try {
+      await client.execute(`SELECT 1 FROM "User" LIMIT 1`);
+      userExists = true;
+    } catch { userExists = false; }
+
+    if (!userExists) {
+      log.push("User table missing — resetting all migrations for clean run");
+      // Drop any partially-created tables and clear migration history
+      const { rows: tables } = await client.execute(
+        `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
+      );
+      for (const row of tables) {
+        const t = String(row.name);
+        log.push(`Dropping: ${t}`);
+        await client.execute(`DROP TABLE IF EXISTS "${t}"`);
+      }
+    }
+
     const { rows } = await client.execute("SELECT name FROM _migrations");
     const applied = new Set(rows.map((r) => String(r.name)));
     log.push(`Already applied: ${applied.size}`);
