@@ -18,7 +18,7 @@ echo "NODE_ENV: $NODE_ENV"
 # Run migrations — custom runner for remote Turso, prisma migrate for local SQLite
 echo "Running database migrations..."
 if echo "$DATABASE_URL" | grep -q "^libsql://"; then
-  node scripts/migrate-turso.mjs
+  node scripts/migrate-turso.cjs
 else
   npx prisma migrate deploy
 fi
