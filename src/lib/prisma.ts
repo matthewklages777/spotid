@@ -16,8 +16,9 @@ function resolveDbUrl(): string {
 function createPrismaClient() {
   const url = resolveDbUrl();
   const authToken = process.env["TURSO_AUTH_TOKEN"];
-  // Prisma 7: PrismaLibSql takes the config object directly
-  const adapter = authToken
+  // Only pass authToken for remote libsql URLs — local file: URLs don't accept tokens
+  const isRemote = url.startsWith("libsql://") || url.startsWith("wss://");
+  const adapter = (authToken && isRemote)
     ? new PrismaLibSql({ url, authToken })
     : new PrismaLibSql({ url });
   return new PrismaClient({ adapter });
