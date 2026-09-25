@@ -43,18 +43,19 @@ for (const name of dirs) {
   if (applied.has(name)) continue;
 
   const sqlPath = join(migrationsDir, name, "migration.sql");
-  const sql = readFileSync(sqlPath, "utf8");
+  const raw = readFileSync(sqlPath, "utf8");
 
   console.log(`Applying migration: ${name}`);
 
-  // Split on statement separator and run each statement
-  const statements = sql
-    .split(/;\s*\n/)
+  // Strip SQL comments, split on semicolons, discard empty statements
+  const statements = raw
+    .replace(/--[^\n]*/g, "")   // remove -- comment lines
+    .split(";")
     .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith("--"));
+    .filter((s) => s.length > 0);
 
   for (const stmt of statements) {
-    await client.execute(stmt.endsWith(";") ? stmt : stmt + ";");
+    await client.execute(stmt);
   }
 
   await client.execute({
