@@ -52,7 +52,7 @@ type Tab = "about" | "photos" | "closet" | "work";
 export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) {
   const params = useParams<{ id?: string }>();
   const id = forcedId || params.id || "";
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const myId = (session?.user as { id?: string })?.id;
   const isOwn = myId === id;
 
@@ -300,6 +300,8 @@ export default function ProfileClient({ forcedId }: { forcedId?: string } = {}) 
       body: JSON.stringify({ [field]: url }),
     });
     setUploading(false);
+    // Refresh session so Navbar picks up new avatar immediately
+    if (field === "image") await updateSession();
     load();
   }
 

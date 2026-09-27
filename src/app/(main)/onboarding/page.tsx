@@ -150,7 +150,7 @@ const STEPS = [
 ];
 
 export default function OnboardingPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [completing, setCompleting] = useState(false);
@@ -172,7 +172,8 @@ export default function OnboardingPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ onboardingComplete: true }),
     });
-    // Send new users directly to Daily so they get their first tag in immediately
+    // Refresh the JWT so OnboardingGuard sees onboardingComplete: true before we navigate
+    await update();
     router.push("/daily");
   }
 

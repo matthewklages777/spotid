@@ -38,20 +38,22 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.onboardingComplete = (user as { onboardingComplete?: boolean }).onboardingComplete ?? false;
         token.emailVerified = (user as { emailVerified?: boolean }).emailVerified ?? false;
       }
-      // Re-check DB until onboarding is done (avoids stale JWT after user completes onboarding)
-      if (token.id && (!token.onboardingComplete || !token.emailVerified)) {
+      // Re-check DB when onboarding/email not yet complete, or when update() is called explicitly
+      if (token.id && (!token.onboardingComplete || !token.emailVerified || trigger === "update")) {
         const fresh = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { onboardingComplete: true, emailVerified: true },
+          select: { onboardingComplete: true, emailVerified: true, image: true, name: true },
         });
         if (fresh?.onboardingComplete) token.onboardingComplete = true;
         if (fresh?.emailVerified) token.emailVerified = true;
+        if (fresh?.image !== undefined) token.picture = fresh.image;
+        if (fresh?.name !== undefined) token.name = fresh.name;
       }
       return token;
     },
@@ -61,6 +63,8 @@ export const authOptions: NextAuthOptions = {
         u.id = token.id as string;
         u.onboardingComplete = token.onboardingComplete as boolean;
         u.emailVerified = token.emailVerified as boolean;
+        if (token.picture !== undefined) session.user.image = token.picture as string | null;
+        if (token.name !== undefined) session.user.name = token.name as string | null;
       }
       return session;
     },
