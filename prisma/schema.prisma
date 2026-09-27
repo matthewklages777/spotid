@@ -105,6 +105,8 @@ model DailyProfile {
   date      String
   note      String?
   image     String?
+  lat       Float?
+  lng       Float?
   userId    String
   user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   hashtags  DailyProfileHashtag[]

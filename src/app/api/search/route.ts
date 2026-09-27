@@ -12,6 +12,9 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const q = url.searchParams.get("q") || "";
   const type = url.searchParams.get("type") || "all";
+  const searLat = parseFloat(url.searchParams.get("lat") || "");
+  const searLng = parseFloat(url.searchParams.get("lng") || "");
+  const hasSearcherCoords = isFinite(searLat) && isFinite(searLng);
 
   const tags = q
     .split(/[\s,]+/)
@@ -175,13 +178,52 @@ export async function GET(req: NextRequest) {
       : Promise.resolve([]),
   ]);
 
-  // Sort premium users to the front of each people list
-  const sortPremiumFirst = <T extends { isPremium?: boolean }>(arr: T[]) =>
-    [...arr].sort((a, b) => (b.isPremium ? 1 : 0) - (a.isPremium ? 1 : 0));
+  // Haversine distance in miles between two lat/lng points
+  function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 3958.8;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // Attach distance label to each user result if both parties have coordinates
+  type UserResult = (typeof users)[number];
+  function withDistance<T extends UserResult>(arr: T[]) {
+    return arr.map((u) => {
+      const dp = u.dailyProfiles?.[0] as ({ lat?: number | null; lng?: number | null } & object) | undefined;
+      if (hasSearcherCoords && dp?.lat != null && dp?.lng != null) {
+        const d = distanceMiles(searLat, searLng, dp.lat, dp.lng);
+        const label = d < 0.1 ? "< 0.1 mi away" : `${d.toFixed(1)} mi away`;
+        return { ...u, distanceMiles: d, distanceLabel: label };
+      }
+      return { ...u, distanceMiles: null as number | null, distanceLabel: null as string | null };
+    });
+  }
+
+  // Sort: premium first, then by distance (nearest first) when available, else leave order
+  function sortResults<T extends { isPremium?: boolean; distanceMiles?: number | null }>(arr: T[]) {
+    return [...arr].sort((a, b) => {
+      // Premium always tops
+      const premDiff = (b.isPremium ? 1 : 0) - (a.isPremium ? 1 : 0);
+      if (premDiff !== 0) return premDiff;
+      // Both have distance — closer first
+      if (a.distanceMiles != null && b.distanceMiles != null) return a.distanceMiles - b.distanceMiles;
+      // One has distance — put it first
+      if (a.distanceMiles != null) return -1;
+      if (b.distanceMiles != null) return 1;
+      return 0;
+    });
+  }
+
+  const usersWithDist = withDistance(users);
+  const profilesWithDist = withDistance(profiles as UserResult[]);
 
   return Response.json({
-    users: sortPremiumFirst(users),
-    profiles: sortPremiumFirst(profiles),
+    users: sortResults(usersWithDist),
+    profiles: sortResults(profilesWithDist),
     closet,
     work,
   });

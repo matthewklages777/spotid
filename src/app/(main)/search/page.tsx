@@ -11,9 +11,11 @@ interface DailyProfileResult {
 interface User {
   id: string; name?: string; image?: string; bio?: string; location?: string; occupation?: string; username?: string; isPremium?: boolean;
   dailyProfiles: DailyProfileResult[];
+  distanceLabel?: string | null;
 }
 type Profile = Omit<User, "dailyProfiles"> & {
   dailyProfiles: DailyProfileResult[];
+  distanceLabel?: string | null;
 };
 interface ClosetItem {
   id: string; title: string; description?: string; price?: number; image?: string;
@@ -77,6 +79,16 @@ function SearchContent() {
   const [showRecent, setShowRecent] = useState(false);
   const [suggestions, setSuggestions] = useState<{ name: string; count: number }[]>([]);
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const coordsRef = useRef<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { coordsRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }; },
+      () => {},
+      { timeout: 6000, maximumAge: 300000 }
+    );
+  }, []);
 
   useEffect(() => {
     setRecentSearches(getRecent());
@@ -120,7 +132,9 @@ function SearchContent() {
     saveRecent(query.trim());
     setRecentSearches(getRecent());
     router.replace(`/search?q=${encodeURIComponent(query)}&type=${t}`, { scroll: false });
-    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&type=${t}`);
+    const coords = coordsRef.current;
+    const locParam = coords ? `&lat=${coords.lat}&lng=${coords.lng}` : "";
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&type=${t}${locParam}`);
     const data = await res.json();
     setUsers(data.users || []);
     setProfiles(data.profiles || []);
@@ -333,6 +347,9 @@ function SearchContent() {
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                           Active Today
                         </span>
+                        {u.distanceLabel && (
+                          <span className="text-xs text-indigo-500 whitespace-nowrap">📍 {u.distanceLabel}</span>
+                        )}
                         {myId && myId !== u.id && (
                           <Link
                             href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
@@ -399,15 +416,20 @@ function SearchContent() {
                         {u.location && <p className="text-xs text-gray-500 mt-0.5">📍 {u.location}</p>}
                         {u.bio && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{u.bio}</p>}
                       </div>
-                      {myId && myId !== u.id && (
-                        <Link
-                          href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-xs text-indigo-600 hover:underline font-medium flex-shrink-0"
-                        >
-                          Message →
-                        </Link>
-                      )}
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        {u.distanceLabel && (
+                          <span className="text-xs text-indigo-500 whitespace-nowrap">📍 {u.distanceLabel}</span>
+                        )}
+                        {myId && myId !== u.id && (
+                          <Link
+                            href={`/messages?to=${u.id}&name=${encodeURIComponent(u.name || "")}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-xs text-indigo-600 hover:underline font-medium"
+                          >
+                            Message →
+                          </Link>
+                        )}
+                      </div>
                     </div>
                     {todayDaily?.hashtags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">

@@ -74,6 +74,7 @@ export default function DailyPage() {
   const [trendingTags, setTrendingTags] = useState<string[]>([]);
   const [topTags, setTopTags] = useState<{ name: string; usageCount: number; avgViews: number | null; totalViews: number | null }[]>([]);
   const [topTagsIsPremium, setTopTagsIsPremium] = useState(false);
+  const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -132,13 +133,31 @@ export default function DailyPage() {
     }
   }
 
+  function getLocation(): Promise<{ lat: number; lng: number } | null> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) { resolve(null); return; }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocationEnabled(true);
+          resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        },
+        () => {
+          setLocationEnabled(false);
+          resolve(null);
+        },
+        { timeout: 6000, maximumAge: 60000 }
+      );
+    });
+  }
+
   async function save() {
     setSaving(true);
     setSaved(false);
+    const coords = await getLocation();
     const res = await fetch("/api/daily", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hashtags, note, image: dailyImage }),
+      body: JSON.stringify({ hashtags, note, image: dailyImage, ...coords }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -383,7 +402,7 @@ export default function DailyPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex items-center gap-3 pt-1 flex-wrap">
           <button
             onClick={save}
             disabled={saving || hashtags.length === 0}
@@ -395,6 +414,12 @@ export default function DailyPage() {
             <span className="text-green-600 text-sm font-medium flex items-center gap-1">
               ✓ Saved — you&apos;re live!
             </span>
+          )}
+          {locationEnabled === true && (
+            <span className="text-xs text-indigo-500 flex items-center gap-1">📍 Location shared</span>
+          )}
+          {locationEnabled === false && (
+            <span className="text-xs text-gray-400 flex items-center gap-1">📍 No location (hashtag search still works)</span>
           )}
         </div>
 

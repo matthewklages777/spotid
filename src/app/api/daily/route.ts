@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Too many updates. Please slow down." }, { status: 429 });
   }
 
-  const { hashtags, note, image } = await req.json();
+  const { hashtags, note, image, lat, lng } = await req.json();
   if (note !== undefined && note !== null && (typeof note !== "string" || note.length > 500)) {
     return Response.json({ error: "Note must be under 500 characters" }, { status: 400 });
   }
@@ -71,6 +71,8 @@ export async function POST(req: NextRequest) {
   if (image !== undefined && image !== null && typeof image !== "string") {
     return Response.json({ error: "image must be a string URL" }, { status: 400 });
   }
+  const latVal = typeof lat === "number" && isFinite(lat) ? lat : null;
+  const lngVal = typeof lng === "number" && isFinite(lng) ? lng : null;
   const date = todayStr();
 
   const rawTags = (hashtags as string[])
@@ -91,6 +93,7 @@ export async function POST(req: NextRequest) {
       data: {
         note,
         ...(image !== undefined ? { image: image || null } : {}),
+        ...(latVal !== null ? { lat: latVal, lng: lngVal } : {}),
         hashtags: { create: tags.map((t) => ({ hashtagId: t.id })) },
       },
       include: { hashtags: { include: { hashtag: true } } },
@@ -102,6 +105,7 @@ export async function POST(req: NextRequest) {
         date,
         note,
         image: image || null,
+        ...(latVal !== null ? { lat: latVal, lng: lngVal } : {}),
         hashtags: { create: tags.map((t) => ({ hashtagId: t.id })) },
       },
       include: { hashtags: { include: { hashtag: true } } },
