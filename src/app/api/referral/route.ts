@@ -80,7 +80,10 @@ export async function POST(req: NextRequest) {
   if (!newUser) return Response.json({ error: "User not found" }, { status: 404 });
   if (newUser.referredBy) return Response.json({ ok: true, alreadyAttributed: true });
 
-  // Attribute the referral
+  const newCount = referrer.referralCount + 1;
+  const earnedPremium = newCount % 3 === 0; // every 3rd referral unlocks premium
+
+  // Attribute the referral (and optionally grant premium to referrer)
   await prisma.$transaction([
     prisma.user.update({
       where: { id: newUserId },
@@ -88,9 +91,28 @@ export async function POST(req: NextRequest) {
     }),
     prisma.user.update({
       where: { id: referrer.id },
-      data: { referralCount: { increment: 1 } },
+      data: {
+        referralCount: { increment: 1 },
+        ...(earnedPremium ? { isPremium: true, premiumSince: new Date() } : {}),
+      },
     }),
   ]);
 
-  return Response.json({ ok: true, referrerId: referrer.id });
+  // Notify the referrer when they unlock premium
+  if (earnedPremium) {
+    const monthsEarned = newCount / 3;
+    await prisma.notification.create({
+      data: {
+        userId: referrer.id,
+        type: "system",
+        title: "🎉 You earned Premium!",
+        body: `You've referred ${newCount} friend${newCount !== 1 ? "s" : ""} — Premium is now unlocked on your account. Thank you for growing SpotId.`,
+        linkUrl: "/upgrade",
+      },
+    });
+    // suppress unused warning
+    void monthsEarned;
+  }
+
+  return Response.json({ ok: true, referrerId: referrer.id, earnedPremium });
 }

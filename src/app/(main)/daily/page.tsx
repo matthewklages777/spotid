@@ -452,17 +452,31 @@ export default function DailyPage() {
               onClick={() => {
                 const base = window.location.origin;
                 const profilePath = `/profile/${userId}`;
-                const shareText = `I'm live on SpotId today with ${hashtags.length} tag${hashtags.length !== 1 ? "s" : ""}: ${hashtags.slice(0, 4).map((t) => `#${t}`).join(" ")}`;
+                const tagLine = hashtags.slice(0, 5).map((t) => `#${t}`).join(" ");
+                const shareText = `I'm live on SpotId today 📍\n${tagLine}\n\nFind me or search anything at ${base}`;
                 if (navigator.share) {
                   navigator.share({ title: "SpotId — I'm live today", text: shareText, url: base + profilePath }).catch(() => {});
                 } else {
-                  navigator.clipboard.writeText(`${shareText}\n${base + profilePath}`).then(() => alert("Link copied!")).catch(() => {});
+                  navigator.clipboard.writeText(`${shareText}\n${base + profilePath}`).then(() => alert("Copied! Paste it anywhere.")).catch(() => {});
                 }
               }}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition"
+              className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition bg-indigo-50 px-3 py-1.5 rounded-full"
             >
-              <span>↗</span> Share today&apos;s profile
+              <span>↗</span> Share to social
             </button>
+          </div>
+        )}
+
+        {/* Referral nudge after first save */}
+        {saved && (
+          <div className="mt-3 flex items-center gap-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-xl px-4 py-3">
+            <span className="text-lg flex-shrink-0">🎁</span>
+            <p className="text-xs text-amber-800 flex-1">
+              <strong>Invite 3 friends</strong> and earn Premium free — see who views your profile, priority search placement, and more.
+            </p>
+            <Link href="/invite" className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
+              Get your link →
+            </Link>
           </div>
         )}
       </div>

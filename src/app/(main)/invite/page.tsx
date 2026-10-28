@@ -115,16 +115,43 @@ export default function InvitePage() {
         )}
       </div>
 
-      {/* How referrals work */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-        <h3 className="font-bold text-amber-900 mb-2">🎁 How It Works</h3>
-        <ul className="text-sm text-amber-800 space-y-1.5 list-none">
-          <li>✦ Share your personal link with friends</li>
-          <li>✦ When they sign up, they're credited to you</li>
-          <li>✦ Watch your referral count grow on this page</li>
-          <li>✦ Every referral builds your SpotId reputation</li>
-        </ul>
-      </div>
+      {/* Referral reward progress */}
+      {(() => {
+        const progress = referralCount % 3;
+        const nextMilestone = 3 - progress;
+        const totalEarned = Math.floor(referralCount / 3);
+        return (
+          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-5">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-bold text-amber-900">🎁 Earn Premium Free</h3>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  {referral?.isPremium
+                    ? "You've earned Premium through referrals — thank you!"
+                    : `Invite ${nextMilestone} more friend${nextMilestone !== 1 ? "s" : ""} to unlock Premium for free`}
+                </p>
+              </div>
+              {totalEarned > 0 && (
+                <span className="text-xs bg-amber-500 text-white font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                  {totalEarned}× earned
+                </span>
+              )}
+            </div>
+            {/* Progress bar */}
+            <div className="flex items-center gap-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={`flex-1 h-2 rounded-full transition-all ${
+                  i < progress ? "bg-amber-500" : "bg-amber-200"
+                }`} />
+              ))}
+              <span className="text-sm font-black text-amber-700 flex-shrink-0">{progress}/3</span>
+            </div>
+            <p className="text-xs text-amber-600 mt-2">
+              Every 3 referrals = Premium unlocked permanently on your account ✨
+            </p>
+          </div>
+        );
+      })()}
 
       {/* Your profile link */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
